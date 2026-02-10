@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Service Posted Successfully";
+}
+
+<div class="container">
+    <div class="success-message">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Service Posted Successfully!</h2>
+        <p>Your service has been listed and is now visible to clients.</p>
+        <p>You can manage your service listing from your dashboard.</p>
+        <div class="action-buttons mt-4">
+            <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-eye"></i> View All Services
+            </a>
+            <a asp-controller="PostJobs" asp-action="Create" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Post Another Service
+            </a>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+            </a>
+        </div>
+    </div>
+</div>

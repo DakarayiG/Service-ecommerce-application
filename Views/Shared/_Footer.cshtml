@@ -1,0 +1,88 @@
+﻿ 
+@{
+    ViewData["Title"] = "_Footer";
+}
+
+<<footer class="main-footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>WorkConnect</h3>
+                <p>Connecting skilled professionals with clients in need.</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li><a asp-controller="Services" asp-action="Index">Find Services</a></li>
+                    <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>Email: info@workconnect.com</p>
+                <p>Phone: (123) 456-7890</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 WorkConnect. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .main-footer {
+        background: #333;
+        color: white;
+        padding: 2rem 0;
+        margin-top: 3rem;
+    }
+
+    .footer-content {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .footer-section {
+        flex: 1;
+        min-width: 200px;
+    }
+
+        .footer-section h3,
+        .footer-section h4 {
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+            .footer-section ul li {
+                margin-bottom: 0.5rem;
+            }
+
+        .footer-section a {
+            color: #ddd;
+            text-decoration: none;
+        }
+
+            .footer-section a:hover {
+                color: #007bff;
+            }
+
+    .footer-bottom {
+        text-align: center;
+        padding-top: 1rem;
+        border-top: 1px solid #444;
+        color: #aaa;
+    }
+</style>
+

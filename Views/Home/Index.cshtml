@@ -1,0 +1,117 @@
+﻿@model phpMVC.Models.ServiceSearchViewModel
+@{
+    ViewData["Title"] = "Home | WorkConnect";
+}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Connect with Local Service Professionals</h1>
+            <p>Find skilled workers or get hired for jobs in your area. Post your service needs or offer your expertise.</p>
+
+            <div class="hero-buttons">
+                <a asp-controller="Jobs" asp-action="Create" class="btn btn-large">
+                    <i class="fas fa-briefcase"></i> Post a Service
+                </a>
+                <a asp-controller="Services" asp-action="Index" class="btn btn-large btn-outline">
+                    <i class="fas fa-hammer"></i> Browse Services
+                </a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Service Professionals" />
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <h2 class="section-title">How WorkConnect Works</h2>
+        <div class="row">
+            <div class="col-3">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-search step-icon"></i>
+                    <h3>Find or Post</h3>
+                    <p>Browse available services or post your job requirements with location and budget.</p>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-handshake step-icon"></i>
+                    <h3>Connect</h3>
+                    <p>Connect with verified service providers or skilled workers in your area.</p>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-check-circle step-icon"></i>
+                    <h3>Get It Done</h3>
+                    <p>Hire, schedule, and complete the job with secure payment options.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Services -->
+<section class="featured-products" id="popular-services">
+    <div class="container">
+        <h2 class="section-title">Popular Services</h2>
+        <div class="row">
+            @foreach (var service in ViewBag.PopularServices)
+            {
+                <div class="col-4">
+                    <div class="service-card">
+                        <img src="@service.ImageUrl" alt="@service.Name" />
+                        <h3>@service.Name</h3>
+                        <p class="service-description">@service.Description</p>
+                        <div class="service-tags">
+                            <span class="service-tag">Popular</span>
+                        </div>
+                        <a asp-controller="Services" asp-action="Index" asp-route-serviceType="@service.Name"
+                           class="btn btn-small">Browse Services</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials" id="testimonials">
+    <div class="container">
+        <h2 class="section-title">Success Stories</h2>
+        <div class="row">
+            <!-- Testimonial cards -->
+            <div class="col-3">
+                <div class="testimonial">
+                    <i class="fas fa-quote-left"></i>
+                    <p>Found a great plumber within hours! The platform made it easy to compare quotes and read reviews.</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Customer" />
+                    <h3>Sarah Johnson</h3>
+                    <p class="testimonial-role">Homeowner</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta">
+    <div class="container">
+        <h2>Ready to Get Started?</h2>
+        <p>Join thousands of clients and service providers who trust WorkConnect</p>
+        <div class="cta-buttons">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-large">Find Services</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-large btn-outline">Offer Services</a>
+        </div>
+    </div>
+</section>

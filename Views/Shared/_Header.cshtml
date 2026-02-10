@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "_Header";
+}
+
+<header class="main-header">
+    <div class="header-content">
+        <!-- Logo -->
+        <div class="logo">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fas fa-hands-helping"></i>
+                <span>WorkConnect</span>
+            </a>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="main-nav">
+            <ul>
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a asp-controller="Services" asp-action="Index">Find Services</a></li>
+                <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+            </ul>
+        </nav>
+
+        <!-- User Actions -->
+        <div class="header-actions">
+            <a asp-controller="Account" asp-action="Login" class="btn btn-small">Log In</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-small btn-primary">Sign Up</a>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li><a asp-controller="Services" asp-action="Index">Find Services</a></li>
+            <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+            <li><a asp-controller="Account" asp-action="Login">Log In</a></li>
+            <li><a asp-controller="Account" asp-action="Register">Sign Up</a></li>
+        </ul>
+    </div>
+</header>
+
+<script>
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', function () {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        if (mobileMenuToggle && mobileMenu) {
+            mobileMenuToggle.addEventListener('click', function () {
+                mobileMenu.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                    mobileMenu.classList.remove('active');
+                }
+            });
+        }
+    });
+</script>

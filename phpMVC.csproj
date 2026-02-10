@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\UploadedImages\acrepair.jpeg" />
+    <None Include="wwwroot\UploadedImages\Alex.png" />
+    <None Include="wwwroot\UploadedImages\Amanda.png" />
+    <None Include="wwwroot\UploadedImages\appliance.jpeg" />
+    <None Include="wwwroot\UploadedImages\Brian.png" />
+    <None Include="wwwroot\UploadedImages\carpet1.jpeg" />
+    <None Include="wwwroot\UploadedImages\carpet2.png" />
+    <None Include="wwwroot\UploadedImages\cleaning1.jpeg" />
+    <None Include="wwwroot\UploadedImages\cleaning2.jpeg" />
+    <None Include="wwwroot\UploadedImages\David.png" />
+    <None Include="wwwroot\UploadedImages\design1.jpeg" />
+    <None Include="wwwroot\UploadedImages\design2.jpeg" />
+    <None Include="wwwroot\UploadedImages\electrical.jpeg" />
+    <None Include="wwwroot\UploadedImages\Emily.png" />
+    <None Include="wwwroot\UploadedImages\Holdinghands2.png" />
+    <None Include="wwwroot\UploadedImages\James.png" />
+    <None Include="wwwroot\UploadedImages\John.png" />
+    <None Include="wwwroot\UploadedImages\Karen.png" />
+    <None Include="wwwroot\UploadedImages\Kevin.png" />
+    <None Include="wwwroot\UploadedImages\lawn1.jpeg" />
+    <None Include="wwwroot\UploadedImages\Maria.png" />
+    <None Include="wwwroot\UploadedImages\Michelle.png" />
+    <None Include="wwwroot\UploadedImages\Mike.png" />
+    <None Include="wwwroot\UploadedImages\moving1.jpeg" />
+    <None Include="wwwroot\UploadedImages\moving2.jpeg" />
+    <None Include="wwwroot\UploadedImages\mweemba.png" />
+    <None Include="wwwroot\UploadedImages\Nancy.png" />
+    <None Include="wwwroot\UploadedImages\painting1.jpeg" />
+    <None Include="wwwroot\UploadedImages\painting2.jpeg" />
+    <None Include="wwwroot\UploadedImages\Paul.png" />
+    <None Include="wwwroot\UploadedImages\pestcontrol.jpeg" />
+    <None Include="wwwroot\UploadedImages\petsitting.jpeg" />
+    <None Include="wwwroot\UploadedImages\plumbing.jpeg" />
+    <None Include="wwwroot\UploadedImages\plumbing1.jpeg" />
+    <None Include="wwwroot\UploadedImages\Rachel.png" />
+    <None Include="wwwroot\UploadedImages\Robert.png" />
+    <None Include="wwwroot\UploadedImages\Sarah.png" />
+    <None Include="wwwroot\UploadedImages\Screenshot 2025-10-25 141058.png" />
+    <None Include="wwwroot\UploadedImages\Screenshot 2025-10-26 095329.png" />
+    <None Include="wwwroot\UploadedImages\Steven.png" />
+    <None Include="wwwroot\UploadedImages\training1.jpeg" />
+    <None Include="wwwroot\UploadedImages\training2.jpeg" />
+    <None Include="wwwroot\UploadedImages\tutoring.jpeg" />
+    <None Include="wwwroot\UploadedImages\webdev.jpeg" />
+    <None Include="wwwroot\UploadedImages\WhatsApp Image 2026-01-15 at 11.58.07 %285%29.jpeg" />
+    <None Include="wwwroot\UploadedImages\WhatsApp Image 2026-01-15 at 11.58.12 %281%29.jpeg" />
+    <None Include="wwwroot\UploadedImages\WhatsApp Image 2026-01-15 at 11.58.12.jpeg" />
+    <None Include="wwwroot\UploadedImages\Wilson.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.3.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
+    <PackageReference Include="MySql.Data" Version="9.6.0" />
+    <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.1" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

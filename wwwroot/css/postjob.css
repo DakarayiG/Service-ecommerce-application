@@ -1,0 +1,236 @@
+﻿/* ============================================
+   POST JOB PAGE STYLES (Mobile First)
+   ============================================ */
+
+.post-job {
+    padding: 40px 0;
+}
+
+    .post-job .container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+/* Sidebar Tips */
+.sidebar-tips {
+    order: -1;
+}
+
+.tips-card, .pricing-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+    .tips-card h3, .pricing-card h3 {
+        color: #333;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+        .tips-card h3 i, .pricing-card h3 i {
+            color: #ff523b;
+            margin-right: 10px;
+        }
+
+    .tips-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .tips-card ul li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+            .tips-card ul li:before {
+                content: "✓";
+                position: absolute;
+                left: 0;
+                color: #4CAF50;
+                font-weight: bold;
+            }
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+    .price-item:last-child {
+        border-bottom: none;
+    }
+
+.price-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.price-value {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+/* Success Message */
+.success-message {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.success-icon {
+    font-size: 50px;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.success-message h3 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.success-message p {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+    .success-actions .btn {
+        width: 100%;
+    }
+
+/* ============================================
+   TABLET STYLES (min-width: 768px)
+   ============================================ */
+@media (min-width: 768px) {
+    .post-job .container {
+        flex-direction: row;
+    }
+
+    .sidebar-tips {
+        order: 2;
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .form-container {
+        flex: 2;
+    }
+
+    .success-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+        .success-actions .btn {
+            width: auto;
+        }
+}
+/* Add to your existing postjob.css or create new */
+
+.image-upload-section {
+    margin: 20px 0;
+    padding: 20px;
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+    .image-upload-section:hover {
+        border-color: #4CAF50;
+        background: #f0fff0;
+    }
+
+.image-preview {
+    max-width: 300px;
+    max-height: 200px;
+    border-radius: 8px;
+    margin: 15px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.upload-btn {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 5px;
+    transition: background 0.3s;
+}
+
+    .upload-btn:hover {
+        background: #45a049;
+    }
+
+.remove-btn {
+    background: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 5px;
+    transition: background 0.3s;
+}
+
+    .remove-btn:hover {
+        background: #d32f2f;
+    }
+
+.image-preview-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.file-info {
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+    padding: 8px;
+    background: #fff;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.form-text {
+    margin-top: 10px;
+    color: #777;
+    font-size: 13px;
+}
+
+/* Success page styling */
+.success-message {
+    text-align: center;
+    padding: 40px;
+    background: #dff0d8;
+    border-radius: 10px;
+    margin: 30px 0;
+}
+
+.success-icon {
+    font-size: 60px;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
