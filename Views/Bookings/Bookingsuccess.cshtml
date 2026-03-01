@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Booking Submitted | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<section class="success-page">
+    <div class="container">
+        <div class="success-card">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+
+            <h1>Booking Request Submitted!</h1>
+            <p class="success-message">
+                Your booking request has been sent to the service provider.
+                They will review your request and contact you soon to confirm the details.
+            </p>
+
+            <div class="next-steps">
+                <h3><i class="fas fa-list-check"></i> What Happens Next?</h3>
+                <ol>
+                    <li>
+                        <i class="fas fa-clock"></i>
+                        <span>The provider will review your booking request</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <span>They'll contact you to confirm details and schedule</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Once accepted, you'll receive a confirmation</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-handshake"></i>
+                        <span>Meet with the provider on your scheduled date</span>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="action-buttons">
+                <a asp-controller="Bookings" asp-action="MyBookings" class="btn btn-primary">
+                    <i class="fas fa-list"></i> View My Bookings
+                </a>
+                <a asp-controller="Services" asp-action="Index" class="btn btn-outline">
+                    <i class="fas fa-search"></i> Browse More Services
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-link">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

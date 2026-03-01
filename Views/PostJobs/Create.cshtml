@@ -5,53 +5,6 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/postjob.css" />
-    <style>
-        .image-upload-section {
-            margin: 20px 0;
-            padding: 20px;
-            border: 2px dashed #ddd;
-            border-radius: 10px;
-            background: #f9f9f9;
-        }
-
-        .image-preview {
-            max-width: 300px;
-            max-height: 200px;
-            border-radius: 8px;
-            margin: 15px 0;
-            display: none;
-        }
-
-        .upload-btn {
-            background: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px 5px;
-        }
-
-        .remove-btn {
-            background: #f44336;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px 5px;
-        }
-
-        .image-preview-container {
-            text-align: center;
-        }
-
-        .file-info {
-            margin-top: 10px;
-            color: #666;
-            font-size: 14px;
-        }
-    </style>
 }
 
 <!-- Page Header -->
@@ -71,6 +24,35 @@
                 <p>Fill in the details about the service you're offering</p>
             </div>
 
+            <!-- SUCCESS MESSAGE -->
+            @if (TempData["ShowSuccessMessage"] != null && (bool)TempData["ShowSuccessMessage"])
+            {
+                <div class="success-message-popup" id="successMessage">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>@TempData["SuccessMessage"]</h3>
+                    <p>Your service has been listed and is now visible to clients.</p>
+                    <div class="success-actions">
+                        <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+                            <i class="fas fa-eye"></i> View All Services
+                        </a>
+                        <button type="button" class="btn btn-secondary" onclick="closeSuccessMessage()">
+                            <i class="fas fa-plus"></i> Post Another
+                        </button>
+                    </div>
+                </div>
+            }
+
+            <!-- ERROR MESSAGE -->
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" style="margin-bottom: 20px; padding: 15px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; color: #721c24;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>@TempData["ErrorMessage"]</strong>
+                </div>
+            }
+
             <form asp-action="Create" method="post" id="jobForm" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
 
@@ -78,38 +60,44 @@
                 <div class="image-upload-section">
                     <h3><i class="fas fa-image"></i> Service Image</h3>
                     <p>Upload an image that represents your service (optional but recommended)</p>
-                    
+
                     <div class="image-preview-container">
+                        <!-- Image Preview -->
                         <div id="imagePreviewContainer" style="display: none;">
-                            <img id="imagePreview" class="image-preview" 
+                            <img id="imagePreview" class="image-preview"
                                  src="#" alt="Service Image Preview" />
                             <div id="fileName" class="file-info"></div>
                         </div>
-                        
-                        <div id="placeholder" class="text-center">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #ccc;"></i>
-                            <p>No image selected</p>
+
+                        <!-- Placeholder -->
+                        <div id="placeholder">
+                            <div class="placeholder-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <p>Click to choose an image</p>
                         </div>
-                        
+
+                        <!-- Upload Actions -->
                         <div class="upload-actions">
-                            <button type="button" class="upload-btn" onclick="document.getElementById('serviceImage').click()">
+                            <button type="button" class="btn btn-outline" onclick="document.getElementById('serviceImage').click()">
                                 <i class="fas fa-upload"></i> Choose Image
                             </button>
-                            <button type="button" class="remove-btn" onclick="removeImage()">
+                            <button type="button" class="btn btn-secondary" onclick="removeImage()">
                                 <i class="fas fa-trash"></i> Remove
                             </button>
                         </div>
-                        
-                        <input type="file" asp-for="ServiceImage" 
-                               id="serviceImage" 
-                               style="display: none;" 
+
+                        <!-- File Input -->
+                        <input type="file" asp-for="ServiceImage"
+                               id="serviceImage"
+                               style="display: none;"
                                accept="image/*"
                                onchange="previewImage(this)" />
-                        
+
+                        <!-- Help Text -->
                         <div class="form-text">
-                            <small>Max file size: 5MB. Supported formats: JPG, PNG, GIF</small>
+                            <small>Max file size: 5MB. Supported formats: JPG, PNG, GIF, WEBP</small>
                         </div>
-                        <span asp-validation-for="ServiceImage" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -119,8 +107,7 @@
                         <label asp-for="ServiceTitle"></label>
                         <input asp-for="ServiceTitle" class="form-control"
                                placeholder="e.g., Professional Plumbing Services, House Cleaning"
-                               maxlength="100" />
-                        <span asp-validation-for="ServiceTitle" class="text-danger"></span>
+                               maxlength="200" />
                     </div>
                 </div>
 
@@ -131,7 +118,6 @@
                         <input asp-for="ServiceType" class="form-control"
                                placeholder="e.g., Plumbing, Cleaning, Electrical, Tutoring"
                                maxlength="50" />
-                        <span asp-validation-for="ServiceType" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -147,7 +133,6 @@
                                    min="0.01"
                                    step="0.01" />
                         </div>
-                        <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
@@ -168,7 +153,6 @@
                         <input asp-for="Location" class="form-control"
                                placeholder="e.g., Cape Town"
                                maxlength="100" />
-                        <span asp-validation-for="Location" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
@@ -176,7 +160,6 @@
                         <input asp-for="Duration" class="form-control"
                                placeholder="e.g., 2 hours, Half Day"
                                maxlength="50" />
-                        <span asp-validation-for="Duration" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -190,7 +173,6 @@
                     <div class="char-count">
                         <span id="charCount">0</span> / 2000 characters
                     </div>
-                    <span asp-validation-for="JobDescription" class="text-danger"></span>
                 </div>
 
                 <!-- Availability -->
@@ -252,48 +234,52 @@
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const reader = new FileReader();
-                
+
                 // Validate file size (5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('File size exceeds 5MB limit. Please choose a smaller file.');
                     input.value = '';
                     return;
                 }
-                
+
                 // Validate file type
-                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                 if (!validTypes.includes(file.type)) {
-                    alert('Please select a valid image file (JPG, PNG, GIF).');
+                    alert('Please select a valid image file (JPG, PNG, GIF, WEBP).');
                     input.value = '';
                     return;
                 }
-                
-                reader.onload = function(e) {
+
+                reader.onload = function (e) {
                     const preview = document.getElementById('imagePreview');
                     const container = document.getElementById('imagePreviewContainer');
                     const placeholder = document.getElementById('placeholder');
                     const fileName = document.getElementById('fileName');
-                    
+
                     preview.src = e.target.result;
                     container.style.display = 'block';
                     placeholder.style.display = 'none';
                     fileName.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
                 };
-                
+
                 reader.readAsDataURL(file);
             }
         }
-        
+
         function removeImage() {
             const input = document.getElementById('serviceImage');
             const container = document.getElementById('imagePreviewContainer');
             const placeholder = document.getElementById('placeholder');
-            
+            const preview = document.getElementById('imagePreview');
+            const fileName = document.getElementById('fileName');
+
             input.value = '';
             container.style.display = 'none';
             placeholder.style.display = 'block';
+            preview.src = '#';
+            fileName.textContent = '';
         }
-        
+
         // Character count for description
         function updateCharCount() {
             const textarea = document.getElementById('JobDescription');
@@ -302,7 +288,7 @@
                 charCount.textContent = textarea.value.length;
             }
         }
-        
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function () {
             const txtDescription = document.getElementById('JobDescription');
@@ -310,29 +296,36 @@
                 txtDescription.addEventListener('input', updateCharCount);
                 updateCharCount(); // Initial count
             }
-        });
-        
-        // Form validation for image
-        function validateImageFile() {
-            const input = document.getElementById('serviceImage');
-            if (input.files.length > 0) {
-                const file = input.files[0];
-                const maxSize = 5 * 1024 * 1024; // 5MB
-                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                
-                if (file.size > maxSize) {
-                    alert('File size exceeds 5MB limit.');
-                    return false;
-                }
-                
-                if (!validTypes.includes(file.type)) {
-                    alert('Please select a valid image file (JPG, PNG, GIF).');
-                    return false;
-                }
-            }
-            return true;
-        }
-    </script>
 
-    <partial name="_ValidationScriptsPartial" />
+            // Form submit handling
+            const form = document.getElementById('jobForm');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+                        submitBtn.disabled = true;
+                    }
+                });
+            }
+        });
+
+        function closeSuccessMessage() {
+            document.getElementById('successMessage').style.display = 'none';
+            // Clear the form
+            document.getElementById('jobForm').reset();
+            // Reset image preview
+            removeImage();
+            // Reset character count
+            updateCharCount();
+        }
+
+        // Auto-hide success message after 10 seconds
+        setTimeout(function () {
+            const msg = document.getElementById('successMessage');
+            if (msg) {
+                msg.style.display = 'none';
+            }
+        }, 10000);
+    </script>
 }

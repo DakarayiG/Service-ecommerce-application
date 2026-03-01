@@ -1,0 +1,263 @@
+﻿@model phpMVC.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account | WorkConnect";
+    Layout = "_AuthLayout"; // 👈 Use auth layout
+
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/register.css" />
+}
+
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h1>Create Account</h1>
+            <p>Join WorkConnect today and start connecting with professionals</p>
+        </div>
+
+        <div class="register-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Please correct the errors below.
+                </div>
+            }
+
+            <form asp-action="Register" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <!-- User Type Radio -->
+                <div class="user-type-group">
+                    <label><i class="fas fa-user-tag"></i> I am a:</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" asp-for="UserType" value="customer" checked />
+                            <span><i class="fas fa-user"></i> Customer (Looking for services)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" asp-for="UserType" value="provider" />
+                            <span><i class="fas fa-briefcase"></i> Service Provider (Offering services)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Provider Image Upload (Shown only for providers) -->
+                <div id="providerImageSection" class="image-upload-section" style="display: none;">
+                    <h3><i class="fas fa-camera"></i> Profile Picture</h3>
+                    <p>Upload a professional photo (recommended for providers)</p>
+                    
+                    <div class="image-preview-container">
+                        <div id="imagePreviewContainer" style="display: none;">
+                            <img id="imagePreview" class="image-preview" 
+                                 src="#" alt="Profile Preview" />
+                            <div id="fileName" class="form-text"></div>
+                        </div>
+                        
+                        <div id="placeholder">
+                            <div class="placeholder-icon">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <p>No image selected</p>
+                        </div>
+                        
+                        <div class="upload-actions">
+                            <button type="button" class="btn btn-outline" onclick="document.getElementById('providerImage').click()">
+                                <i class="fas fa-upload"></i> Choose Image
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="removeImage()">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                        
+                        <input type="file" asp-for="ProviderImage" 
+                               id="providerImage" 
+                               style="display: none;" 
+                               accept="image/*"
+                               onchange="previewImage(this)" />
+                        
+                        <div class="form-text">
+                            <small>Max file size: 5MB. Supported formats: JPG, PNG, GIF</small>
+                        </div>
+                        <span asp-validation-for="ProviderImage" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Name Fields -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="FirstName">
+                            <i class="fas fa-user"></i> First Name
+                        </label>
+                        <input asp-for="FirstName" class="form-control" 
+                               placeholder="Enter your first name" 
+                               maxlength="100" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="LastName">
+                            <i class="fas fa-user"></i> Last Name
+                        </label>
+                        <input asp-for="LastName" class="form-control" 
+                               placeholder="Enter your last name" 
+                               maxlength="100" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label asp-for="Email">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <input asp-for="Email" class="form-control" 
+                           type="email" 
+                           placeholder="your@email.com" 
+                           maxlength="255" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <!-- Phone & WhatsApp -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Phone">
+                            <i class="fas fa-phone"></i> Phone Number
+                        </label>
+                        <input asp-for="Phone" class="form-control" 
+                               placeholder="+1 234 567 8900" 
+                               maxlength="20" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="WhatsApp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp Number
+                        </label>
+                        <input asp-for="WhatsApp" class="form-control" 
+                               placeholder="+1 234 567 8900" 
+                               maxlength="20" />
+                        <span asp-validation-for="WhatsApp" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label asp-for="Address">
+                        <i class="fas fa-map-marker-alt"></i> Address
+                    </label>
+                    <textarea asp-for="Address" class="form-control" 
+                              rows="3" 
+                              placeholder="Enter your full address"
+                              maxlength="500"></textarea>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <!-- Password Fields -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Password">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input asp-for="Password" class="form-control" 
+                               type="password" 
+                               placeholder="Create a password" />
+                        <div class="form-text">
+                            <small>At least 8 characters with 1 uppercase, 1 number</small>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword">
+                            <i class="fas fa-lock"></i> Confirm Password
+                        </label>
+                        <input asp-for="ConfirmPassword" class="form-control" 
+                               type="password" 
+                               placeholder="Confirm your password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+
+                <div class="login-link">
+                    <p>Already have an account? <a asp-action="Login">Sign in here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle provider image section based on user type
+        document.addEventListener('DOMContentLoaded', function() {
+            const userTypeRadios = document.querySelectorAll('input[name="UserType"]');
+            const providerSection = document.getElementById('providerImageSection');
+            
+            function toggleProviderImage() {
+                const selectedValue = document.querySelector('input[name="UserType"]:checked').value;
+                providerSection.style.display = selectedValue === 'provider' ? 'block' : 'none';
+            }
+            
+            userTypeRadios.forEach(radio => {
+                radio.addEventListener('change', toggleProviderImage);
+            });
+            
+            // Initial check
+            toggleProviderImage();
+        });
+
+        // Image preview functionality
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size exceeds 5MB limit. Please choose a smaller file.');
+                    input.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPG, PNG, GIF, WEBP).');
+                    input.value = '';
+                    return;
+                }
+                
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    const container = document.getElementById('imagePreviewContainer');
+                    const placeholder = document.getElementById('placeholder');
+                    const fileName = document.getElementById('fileName');
+                    
+                    preview.src = e.target.result;
+                    container.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    fileName.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removeImage() {
+            const input = document.getElementById('providerImage');
+            const container = document.getElementById('imagePreviewContainer');
+            const placeholder = document.getElementById('placeholder');
+            
+            input.value = '';
+            container.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}

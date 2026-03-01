@@ -86,42 +86,37 @@ namespace phpMVC.Controllers
                     var whereClauses = new List<string>();
                     var parameters = new List<MySqlParameter>();
 
-                    whereClauses.Add("IsActive = 1");
+                    whereClauses.Add("s.IsActive = 1");
 
                     if (!string.IsNullOrEmpty(model.ServiceType))
                     {
-                        // Enhanced service type search with multiple matching strategies
                         whereClauses.Add(@"
-                            (LOWER(Name) LIKE @serviceType 
-                             OR LOWER(Description) LIKE @serviceType
-                             OR LOWER(Name) LIKE @serviceTypeStart
-                             OR LOWER(Description) LIKE @serviceTypeStart
-                             OR SOUNDEX(LOWER(Name)) LIKE CONCAT(SOUNDEX(@soundexService), '%')
-                             OR SOUNDEX(LOWER(Description)) LIKE CONCAT(SOUNDEX(@soundexService), '%'))");
+                    (LOWER(s.Name) LIKE @serviceType 
+                     OR LOWER(s.Description) LIKE @serviceType
+                     OR LOWER(s.Name) LIKE @serviceTypeStart
+                     OR LOWER(s.Description) LIKE @serviceTypeStart)");
 
                         string searchTermLower = model.ServiceType.ToLower();
-
                         parameters.Add(new MySqlParameter("@serviceType", "%" + searchTermLower + "%"));
                         parameters.Add(new MySqlParameter("@serviceTypeStart", searchTermLower + "%"));
-                        parameters.Add(new MySqlParameter("@soundexService", searchTermLower));
                     }
 
                     if (!string.IsNullOrEmpty(model.Location))
                     {
-                        whereClauses.Add("LOWER(location) LIKE @location");
+                        whereClauses.Add("LOWER(s.location) LIKE @location");
                         parameters.Add(new MySqlParameter("@location", "%" + model.Location.ToLower() + "%"));
                     }
 
                     if (!string.IsNullOrEmpty(model.Duration))
                     {
-                        whereClauses.Add("LOWER(duration) LIKE @duration");
+                        whereClauses.Add("LOWER(s.duration) LIKE @duration");
                         parameters.Add(new MySqlParameter("@duration", "%" + model.Duration.ToLower() + "%"));
                     }
 
                     if (!string.IsNullOrEmpty(model.PriceRange))
                     {
                         (decimal minPrice, decimal maxPrice) = GetPriceRange(model.PriceRange);
-                        whereClauses.Add("price >= @minPrice AND price <= @maxPrice");
+                        whereClauses.Add("s.price >= @minPrice AND s.price <= @maxPrice");
                         parameters.Add(new MySqlParameter("@minPrice", minPrice));
                         parameters.Add(new MySqlParameter("@maxPrice", maxPrice));
                     }
@@ -133,7 +128,7 @@ namespace phpMVC.Controllers
                     string whereClause = whereClauses.Count > 0 ? "WHERE " + string.Join(" AND ", whereClauses) : "";
 
                     // Get total count
-                    string countQuery = $"SELECT COUNT(*) FROM service {whereClause}";
+                    string countQuery = $"SELECT COUNT(*) FROM service s {whereClause}";
                     using (var countCmd = new MySqlCommand(countQuery, connection))
                     {
                         foreach (var param in parameters)
@@ -143,15 +138,17 @@ namespace phpMVC.Controllers
                         model.TotalServices = Convert.ToInt32(countCmd.ExecuteScalar());
                     }
 
-                    // Get paginated data - NOW INCLUDING IMAGE COLUMNS
+                    // Get paginated data - JOIN with h_users to get provider names
                     int offset = (model.Page - 1) * _pageSize;
                     string dataQuery = $@"
-                    SELECT Id, Name, Description, location, duration, availability, 
-                           rating, reviewcount, price, serviceImages, providerImages
-                    FROM service 
-                    {whereClause} 
-                    ORDER BY {sortOrder}
-                    LIMIT {_pageSize} OFFSET {offset}";
+                SELECT s.Id, s.Name, s.Description, s.location, s.duration, s.availability, 
+                       s.rating, s.reviewcount, s.price, s.serviceImages, s.providerImages,
+                       s.ProviderId, u.FirstName, u.LastName
+                FROM service s
+                INNER JOIN h_users u ON s.ProviderId = u.Id
+                {whereClause} 
+                ORDER BY {sortOrder}
+                LIMIT {_pageSize} OFFSET {offset}";
 
                     using (var dataCmd = new MySqlCommand(dataQuery, connection))
                     {
@@ -174,11 +171,17 @@ namespace phpMVC.Controllers
                                     Availability = reader["availability"]?.ToString() ?? string.Empty,
                                     Rating = Convert.ToDouble(reader["rating"]),
                                     ReviewCount = Convert.ToInt32(reader["reviewcount"]),
-                                    Price = Convert.ToDecimal(reader["price"])
+                                    Price = Convert.ToDecimal(reader["price"]),
+                                    ProviderId = Convert.ToInt32(reader["ProviderId"]) // Get provider ID
                                 };
 
-                                string serviceImageStr = reader["serviceImages"]?.ToString();
+                                // Get provider name from h_users table
+                                string firstName = reader["FirstName"]?.ToString() ?? "";
+                                string lastName = reader["LastName"]?.ToString() ?? "";
+                                service.ProviderName = $"{firstName} {lastName}".Trim();
 
+                                // Handle service image
+                                string serviceImageStr = reader["serviceImages"]?.ToString();
                                 if (!string.IsNullOrEmpty(serviceImageStr))
                                 {
                                     string[] images = serviceImageStr.Split(',');
@@ -189,22 +192,8 @@ namespace phpMVC.Controllers
                                     service.ImageUrl = GetDefaultServiceImage();
                                 }
 
-
-                                //// Handle service images from database
-                                //string serviceImageStr = reader["serviceImages"]?.ToString();
-                                //if (!string.IsNullOrEmpty(serviceImageStr))
-                                //{
-                                //    // Take first image from comma-separated list
-                                //    string[] images = serviceImageStr.Split(',');
-                                //    service.ImageUrl = images[0].Trim();
-                                //}
-                                //else
-                                //{
-                                //    // Fallback to default image if none in database
-                                //    service.ImageUrl = GetDefaultServiceImage();
-                                //}
+                                // Handle provider image
                                 string providerImage = reader["providerImages"]?.ToString();
-
                                 if (!string.IsNullOrEmpty(providerImage))
                                 {
                                     service.ProviderImage = NormalizeImageUrl(providerImage);
@@ -213,20 +202,6 @@ namespace phpMVC.Controllers
                                 {
                                     service.ProviderImage = GetDefaultProviderImage();
                                 }
-
-                                //// Handle provider image from database
-                                //string providerImage = reader["providerImages"]?.ToString();
-                                //if (!string.IsNullOrEmpty(providerImage))
-                                //{
-                                //    service.ProviderImage = providerImage;
-                                //}
-                                //else
-                                //{
-                                //    // Fallback to default provider image
-                                //    service.ProviderImage = GetDefaultProviderImage();
-                                //}
-
-                                service.ProviderName = "Service Provider"; // Default name
 
                                 // Set badge
                                 if (service.Rating >= 4.5)
@@ -252,10 +227,7 @@ namespace phpMVC.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Log error (you should implement proper logging here)
                     Console.WriteLine($"Error loading services: {ex.Message}");
-
-                    // Fallback to hardcoded services
                     services = GetHardcodedServices();
                     model.TotalServices = services.Count;
                 }
@@ -263,7 +235,6 @@ namespace phpMVC.Controllers
 
             return services;
         }
-
         private (decimal minPrice, decimal maxPrice) GetPriceRange(string priceRange)
         {
             return priceRange switch
@@ -409,7 +380,6 @@ namespace phpMVC.Controllers
         //    return images;
         //}
 
-
         private string NormalizeImageUrl(string imagePath)
         {
             if (string.IsNullOrWhiteSpace(imagePath))
@@ -417,41 +387,24 @@ namespace phpMVC.Controllers
 
             imagePath = imagePath.Trim();
 
-            // Absolute URL (external) - already has extension
+            // Absolute URL (external)
             if (imagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 imagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 return imagePath;
             }
 
-            // If it already has UploadedImages/ prefix
+            // Remove leading ~ or / if present
+            imagePath = imagePath.TrimStart('~', '/');
+
+            // If DB already contains UploadedImages/
             if (imagePath.StartsWith("UploadedImages/", StringComparison.OrdinalIgnoreCase))
             {
-                return Url.Content("~/" + imagePath);
+                return "~/" + imagePath; // Return relative path without Url.Content
             }
 
-            // For filenames without extension, try to find the actual file
-            return FindImageFile(imagePath);
-        }
-
-        private string FindImageFile(string imageName)
-        {
-            // Remove any existing extension
-            string fileNameWithoutExt = Path.GetFileNameWithoutExtension(imageName);
-
-            // Define possible image extensions to check
-            string[] extensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" };
-
-            // In a web environment, we can't check physical files easily,
-            // so we'll try common extensions and let the browser handle 404s
-            // OR we can store the correct extension in the database
-
-            // Simple approach: try .jpg first, then .png
-            return Url.Content($"~/UploadedImages/{fileNameWithoutExt}.jpg");
-
-            // OR if you want to handle missing images better:
-            // return Url.Content($"~/UploadedImages/{fileNameWithoutExt}");
-            // Then your actual files should have correct extensions
+            // Otherwise assume it's a filename only
+            return "~/UploadedImages/" + imagePath;
         }
         //private string NormalizeImageUrl(string imagePath)
         //{

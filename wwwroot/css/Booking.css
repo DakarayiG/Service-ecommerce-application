@@ -1,0 +1,981 @@
+﻿/* ============================================
+   BOOKING SYSTEM STYLES
+   ============================================ */
+
+/* Booking Section */
+.booking-section {
+    padding: 40px 0;
+    background: #f9f9f9;
+}
+
+.booking-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Service Details Card */
+.service-details-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+    .service-details-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+.service-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.service-details-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.service-desc {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.service-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+    .info-item i {
+        color: #ff523b;
+        font-size: 1.1rem;
+    }
+
+/* Booking Form Card */
+.booking-form-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+    .booking-form-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .booking-form-card > p {
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+.date-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+    .date-input:focus {
+        border-color: #ff523b;
+        outline: none;
+    }
+
+/* Booking Summary */
+.booking-summary {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+    border-left: 4px solid #ff523b;
+}
+
+    .booking-summary h3 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+    .summary-row:last-of-type {
+        border-bottom: none;
+        padding-top: 15px;
+    }
+
+    .summary-row .price {
+        color: #ff523b;
+        font-size: 1.3rem;
+    }
+
+.summary-note {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff3cd;
+    border-radius: 5px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+    .summary-note i {
+        color: #856404;
+        margin-top: 2px;
+    }
+
+    .summary-note small {
+        color: #856404;
+        line-height: 1.4;
+    }
+
+.terms-note {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: #e7f3ff;
+    border-radius: 5px;
+}
+
+    .terms-note p {
+        margin: 0;
+        color: #004085;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .terms-note i {
+        color: #004085;
+    }
+
+/* Success Page */
+.success-page {
+    padding: 60px 0;
+    background: #f9f9f9;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.success-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+    .success-icon i {
+        animation: scaleIn 0.5s ease-in-out;
+    }
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.success-card h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.success-message {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.next-steps {
+    text-align: left;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+    .next-steps h3 {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .next-steps ol {
+        list-style: none;
+        counter-reset: step-counter;
+        padding: 0;
+    }
+
+        .next-steps ol li {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+        }
+
+            .next-steps ol li::before {
+                content: counter(step-counter);
+                background: #ff523b;
+                color: white;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                flex-shrink: 0;
+            }
+
+            .next-steps ol li i {
+                color: #ff523b;
+                margin-right: 5px;
+                display: none;
+            }
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Orders Section */
+.orders-section {
+    padding: 40px 0;
+    background: #f9f9f9;
+}
+
+.orders-header {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+    .orders-header h2 {
+        font-size: 1.5rem;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+.badge {
+    background: #ff523b;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.badge-success {
+    background: #28a745;
+}
+
+.orders-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+/* Order Card */
+.order-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+    .order-card:hover {
+        transform: translateY(-3px);
+    }
+
+.order-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.order-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-accepted {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-completed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.order-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+    .order-date i {
+        margin-right: 5px;
+    }
+
+.order-body {
+    padding: 20px;
+}
+
+/* Service Info Section */
+.service-info-section {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.order-service-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.service-details h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.service-details .price {
+    font-size: 1.3rem;
+    color: #ff523b;
+    font-weight: 600;
+}
+
+/* Scheduled Date Highlight */
+.scheduled-date-highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+    .scheduled-date-highlight i {
+        font-size: 2rem;
+    }
+
+    .scheduled-date-highlight .label {
+        display: block;
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 3px;
+    }
+
+    .scheduled-date-highlight .date {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+/* Customer/Provider Info */
+.customer-info {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+    .customer-info h4 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+    .info-row i {
+        color: #ff523b;
+        width: 20px;
+    }
+
+    .info-row a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .info-row a:hover {
+            text-decoration: underline;
+        }
+
+/* Booking Details */
+.booking-details {
+    margin-bottom: 20px;
+}
+
+    .booking-details h4 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+.customer-notes {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 15px;
+    background: #fff9e6;
+    border-radius: 5px;
+    border-left: 4px solid #ffc107;
+}
+
+    .customer-notes i {
+        color: #856404;
+        margin-top: 2px;
+    }
+
+    .customer-notes p {
+        margin: 0;
+        color: #856404;
+        line-height: 1.6;
+    }
+
+/* Order Actions */
+.order-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-top: 2px solid #e9ecef;
+}
+
+.accept-btn {
+    background: #28a745;
+}
+
+    .accept-btn:hover {
+        background: #218838;
+    }
+
+.reject-btn {
+    background: #dc3545;
+}
+
+    .reject-btn:hover {
+        background: #c82333;
+    }
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+    .action-link:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+    }
+
+/* Status Messages */
+.status-message {
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.status-info {
+    background: #cfe2ff;
+    color: #084298;
+}
+
+.status-success {
+    background: #d1e7dd;
+    color: #0a3622;
+}
+
+.status-danger {
+    background: #f8d7da;
+    color: #58151c;
+}
+
+/* Empty State */
+.empty-state {
+    background: white;
+    padding: 60px 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: #666;
+        margin-bottom: 25px;
+        font-size: 1rem;
+    }
+
+/* Alert Messages */
+.alert {
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* ============================================
+   RESPONSIVE STYLES
+   ============================================ */
+
+@media (min-width: 768px) {
+    .booking-container {
+        flex-direction: row;
+    }
+
+    .service-details-card {
+        flex: 0 0 350px;
+    }
+
+    .booking-form-card {
+        flex: 1;
+    }
+
+    .orders-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .orders-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .order-actions {
+        flex-direction: row;
+    }
+
+    .action-buttons {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+
+@media (min-width: 992px) {
+    .orders-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .service-image {
+        height: 250px;
+    }
+}
+/* ============================================
+   PRICE INPUT AND COMPARISON STYLES
+   Add these to your booking.css file
+   ============================================ */
+
+/* Price Input Styling */
+.price-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #666;
+    pointer-events: none;
+}
+
+.price-input {
+    padding-left: 35px !important;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ff523b;
+}
+
+.price-help {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #e7f3ff;
+    border-radius: 5px;
+    border-left: 3px solid #007bff;
+}
+
+    .price-help small {
+        color: #004085;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+/* Pricing Note in Service Details */
+.pricing-note {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff3cd;
+    border-radius: 5px;
+    border-left: 4px solid #ffc107;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+    .pricing-note i {
+        color: #856404;
+        margin-top: 2px;
+        font-size: 1.1rem;
+    }
+
+    .pricing-note small {
+        color: #856404;
+        line-height: 1.5;
+    }
+
+/* Summary Row Highlighting */
+.highlight-row {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin: 10px -15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+    .highlight-row .price {
+        color: #fff;
+        font-size: 1.4rem;
+    }
+
+.original-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.95rem;
+}
+
+/* Price Comparison in Orders */
+.price-comparison {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.price-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+    .price-item small {
+        color: #666;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .price-item .original-price {
+        font-size: 1rem;
+        color: #999;
+    }
+
+    .price-item .proposed-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #28a745;
+    }
+
+.price-arrow {
+    color: #007bff;
+    font-size: 1.2rem;
+}
+
+/* Price Difference Indicator */
+.price-difference {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.price-increase {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.price-decrease {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Acceptance Note */
+.acceptance-note {
+    padding: 10px 20px;
+    background: #e7f3ff;
+    border-top: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .acceptance-note i {
+        color: #004085;
+    }
+
+    .acceptance-note small {
+        color: #004085;
+        line-height: 1.4;
+    }
+
+/* Accepted Bookings - Show Agreed Price */
+.agreed-price-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+    .agreed-price-badge i {
+        font-size: 1rem;
+    }
+
+/* Price History Display */
+.price-history {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+    .price-history h5 {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+.price-history-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+    .price-history-row:last-child {
+        border-bottom: none;
+    }
+
+    .price-history-row span:first-child {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .price-history-row span:last-child {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .price-history-row.final-price {
+        background: #d4edda;
+        margin: 5px -15px 0;
+        padding: 10px 15px;
+        border-radius: 5px;
+    }
+
+        .price-history-row.final-price span {
+            color: #155724;
+            font-size: 1rem;
+        }
+
+            .price-history-row.final-price span:last-child {
+                color: #28a745;
+                font-size: 1.2rem;
+            }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .price-comparison {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .price-arrow {
+        transform: rotate(90deg);
+    }
+
+    .price-item {
+        width: 100%;
+    }
+
+    .highlight-row {
+        margin: 10px 0;
+    }
+}

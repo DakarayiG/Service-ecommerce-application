@@ -1,5 +1,302 @@
 ﻿@{
+    string userId = Context.Session.GetString("UserId");
+    string userName = Context.Session.GetString("UserName");
+    string userType = Context.Session.GetString("UserType");
+    bool isLoggedIn = !string.IsNullOrEmpty(userId);
+    bool isProvider = userType == "provider";
+    bool isCustomer = userType == "customer";
+    bool isAdmin = userType == "admin";
+}
+
+<header class="main-header">
+    <div class="header-content">
+
+        <!-- Logo -->
+        <div class="logo">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fas fa-hands-helping"></i>
+                <span>WorkConnect</span>
+            </a>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="main-nav">
+            <ul>
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a asp-controller="Services" asp-action="Index">Services</a></li>
+
+                @if (isProvider)
+                {
+                    <li><a asp-controller="PostJobs" asp-action="Create">Post Service</a></li>
+                    <li><a asp-controller="Bookings" asp-action="Orders">Orders</a></li>
+                    <li><a asp-controller="Bookings" asp-action="AcceptedBookings">Accepted</a></li>
+                }
+
+                @if (isCustomer)
+                {
+                    <li><a asp-controller="Bookings" asp-action="MyBookings">My Bookings</a></li>
+                }
+
+                @if (isAdmin)
+                {
+                    <li><a asp-controller="Chat" asp-action="AdminDashboard">Chat Monitor</a></li>
+                    <li><a asp-controller="Dashboard" asp-action="Index">Admin Panel</a></li>
+                }
+
+                @if (isLoggedIn && !isAdmin)
+                {
+                    <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                }
+            </ul>
+        </nav>
+
+        <!-- Right-side actions -->
+        <div class="header-actions">
+
+            @if (isLoggedIn)
+            {
+                <!-- Provider Search (customers only) -->
+                @if (isCustomer)
+                {
+                    <div class="header-search-wrap" id="headerSearchWrap">
+                        <button class="search-toggle-btn" id="searchToggleBtn" title="Search Providers">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <div class="header-search-panel" id="headerSearchPanel">
+                            <input type="text" id="headerSearchInput" placeholder="Search providers..." autocomplete="off" />
+                            <div id="headerSearchResults" class="header-search-dropdown hidden"></div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Chat Icon with unread badge -->
+                <a asp-controller="Chat" asp-action="Index" class="header-chat-icon" id="headerChatBtn" title="Chats">
+                    <i class="fas fa-comments"></i>
+                    <span class="header-chat-badge" id="chatBadge"></span>
+                    <span class="chat-label">Chats</span>
+                </a>
+
+                <!-- User info + logout -->
+                <div class="user-menu-wrap">
+                    <button class="user-menu-btn" id="userMenuBtn">
+                        <span class="user-avatar-circle">@(userName?.Substring(0, 1).ToUpper() ?? "U")</span>
+                        <span class="user-name-short">@userName?.Split(' ')[0]</span>
+                        <i class="fas fa-chevron-down chevron-icon"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-user-info">
+                            <span class="dropdown-name">@userName</span>
+                            <span class="dropdown-type @userType">@userType</span>
+                        </div>
+                        <a asp-controller="Dashboard" asp-action="Index" class="dropdown-item">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        @if (isAdmin)
+                        {
+                            <a asp-controller="Chat" asp-action="AdminDashboard" class="dropdown-item">
+                                <i class="fas fa-shield-alt"></i> Chat Monitor
+                            </a>
+                        }
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-logout-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item logout-item">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn btn-small btn-outline-header">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-small btn-primary">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            }
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li><a asp-controller="Services" asp-action="Index">Find Services</a></li>
+
+            @if (isProvider)
+            {
+                <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+                <li><a asp-controller="Bookings" asp-action="Orders">Orders</a></li>
+                <li><a asp-controller="Bookings" asp-action="AcceptedBookings">Accepted Orders</a></li>
+            }
+
+            @if (isCustomer)
+            {
+                <li><a asp-controller="Bookings" asp-action="MyBookings">My Bookings</a></li>
+            }
+
+            @if (isLoggedIn)
+            {
+                <li><a asp-controller="Chat" asp-action="Index">💬 Chats</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                @if (isAdmin)
+                {
+                    <li><a asp-controller="Chat" asp-action="AdminDashboard">Chat Monitor</a></li>
+                }
+                <li class="mobile-user-info">
+                    <hr />
+                    <span>
+                        <i class="fas fa-user-circle"></i> @userName
+                        <span class="mobile-type-badge @userType">(@userType)</span>
+                    </span>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-small btn-logout mobile-logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li><a asp-controller="Account" asp-action="Login">Log In</a></li>
+                <li><a asp-controller="Account" asp-action="Register">Sign Up</a></li>
+            }
+        </ul>
+    </div>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // ── Mobile menu ────────────────────────────────────────────────
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileToggle && mobileMenu) {
+            mobileToggle.addEventListener('click', () => mobileMenu.classList.toggle('active'));
+            document.addEventListener('click', e => {
+                if (!mobileMenu.contains(e.target) && !mobileToggle.contains(e.target))
+                    mobileMenu.classList.remove('active');
+            });
+        }
+
+        // ── User dropdown ───────────────────────────────────────────────
+        const userBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        if (userBtn && userDropdown) {
+            userBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                userBtn.classList.toggle('open');
+                userDropdown.classList.toggle('open');
+            });
+            document.addEventListener('click', e => {
+                if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userBtn.classList.remove('open');
+                    userDropdown.classList.remove('open');
+                }
+            });
+        }
+
+        // ── Provider search (customers only) ───────────────────────────
+        const searchToggle = document.getElementById('searchToggleBtn');
+        const searchPanel = document.getElementById('headerSearchPanel');
+        const searchInput = document.getElementById('headerSearchInput');
+        const searchResults = document.getElementById('headerSearchResults');
+
+        if (searchToggle && searchPanel) {
+            searchToggle.addEventListener('click', e => {
+                e.stopPropagation();
+                searchPanel.classList.toggle('open');
+                if (searchPanel.classList.contains('open')) searchInput?.focus();
+            });
+
+            document.addEventListener('click', e => {
+                if (!searchPanel.contains(e.target) && !searchToggle.contains(e.target)) {
+                    searchPanel.classList.remove('open');
+                }
+            });
+
+            let searchTimeout;
+            searchInput?.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                const q = this.value.trim();
+                if (q.length < 2) { searchResults.classList.add('hidden'); return; }
+
+                searchTimeout = setTimeout(() => {
+                    fetch(`/Chat/SearchProviders?q=${encodeURIComponent(q)}`)
+                        .then(r => r.json())
+                        .then(users => {
+                            searchResults.innerHTML = '';
+                            if (users.length === 0) {
+                                searchResults.innerHTML = '<div style="padding:12px;color:#999;text-align:center">No providers found</div>';
+                            } else {
+                                users.forEach(u => {
+                                    const a = document.createElement('a');
+                                    a.href = `/Services/Index?ServiceType=${encodeURIComponent(u.firstName + ' ' + u.lastName)}`;
+                                    a.className = 'header-search-item';
+                                    a.innerHTML = `
+                                        <span class="hs-avatar">${u.firstName.charAt(0)}</span>
+                                        <span class="hs-name">${u.firstName} ${u.lastName}</span>
+                                        <span class="hs-type">Provider</span>`;
+                                    searchResults.appendChild(a);
+
+                                    // Also add a "Message" option
+                                    const msgDiv = document.createElement('div');
+                                    msgDiv.className = 'header-search-item';
+                                    msgDiv.style.cssText = 'padding-left: 28px; font-size: 0.8rem; color: #ff523b; cursor:pointer;';
+                                    msgDiv.innerHTML = `<i class="fas fa-comment" style="margin-right:6px"></i> Message ${u.firstName}`;
+                                    msgDiv.onclick = () => window.location.href = `/Chat/Open/${u.id}`;
+                                    searchResults.appendChild(msgDiv);
+                                });
+                            }
+                            searchResults.classList.remove('hidden');
+                        });
+                }, 300);
+            });
+        }
+
+        // ── Unread chat badge ───────────────────────────────────────────
+        const isLoggedIn = @(isLoggedIn ? "true" : "false");
+        if (isLoggedIn) {
+            function updateChatBadge() {
+                fetch('/Chat/UnreadCount')
+                    .then(r => r.json())
+                    .then(data => {
+                        const badge = document.getElementById('chatBadge');
+                        if (badge) {
+                            if (data.count > 0) {
+                                badge.textContent = data.count > 99 ? '99+' : data.count;
+                                badge.classList.add('visible');
+                            } else {
+                                badge.classList.remove('visible');
+                            }
+                        }
+                    })
+                    .catch(() => { });
+            }
+
+            updateChatBadge();
+            setInterval(updateChatBadge, 15000); // Poll every 15 seconds
+        }
+    });
+</script>
+@* @{
     ViewData["Title"] = "_Header";
+
+    // Get session values
+    string userId = Context.Session.GetString("UserId");
+    string userName = Context.Session.GetString("UserName");
+    string userType = Context.Session.GetString("UserType");
+    bool isLoggedIn = !string.IsNullOrEmpty(userId);
+    bool isProvider = userType == "provider";
+    bool isCustomer = userType == "customer";
+
 }
 
 <header class="main-header">
@@ -17,16 +314,68 @@
             <ul>
                 <li><a asp-controller="Home" asp-action="Index">Home</a></li>
                 <li><a asp-controller="Services" asp-action="Index">Find Services</a></li>
-                <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+
+                <!-- 🔴 Only show Post a Service to providers -->
+                @if (isProvider)
+                {
+                    <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+                    <li><a asp-controller="Bookings" asp-action="Orders">Orders</a></li>
+                    <li><a asp-controller="Bookings" asp-action="Acceptedbookings">Accepted Orders</a></li>
+
+                }
+
+                @if (isCustomer)
+                {
+                    <li><a asp-controller="Bookings" asp-action="Mybookings">My Bookings</a></li>
+
+                }
+
                 <li><a href="#how-it-works">How It Works</a></li>
                 <li><a href="#testimonials">Testimonials</a></li>
+
+                <!-- 🔴 Show dashboard for logged in users -->
+                @if (isLoggedIn)
+                {
+                    <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                }
             </ul>
         </nav>
 
         <!-- User Actions -->
         <div class="header-actions">
-            <a asp-controller="Account" asp-action="Login" class="btn btn-small">Log In</a>
-            <a asp-controller="Account" asp-action="Register" class="btn btn-small btn-primary">Sign Up</a>
+            @if (isLoggedIn)
+            {
+                <!-- 🔴 User is logged in -->
+                <span class="welcome-message">
+                    <i class="fas fa-user-circle"></i> @userName
+                    @if (isProvider)
+                    {
+                        <span class="provider-badge">(Provider)</span>
+                    }
+                    else
+                    {
+                        <span class="customer-badge">(Customer)</span>
+                    }
+                </span>
+
+                <!-- Logout Form -->
+                <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-small btn-logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            }
+            else
+            {
+                <!-- 🔴 User is not logged in -->
+                <a asp-controller="Account" asp-action="Login" class="btn btn-small">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-small btn-primary">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            }
         </div>
 
         <!-- Mobile Menu Toggle -->
@@ -40,14 +389,109 @@
         <ul>
             <li><a asp-controller="Home" asp-action="Index">Home</a></li>
             <li><a asp-controller="Services" asp-action="Index">Find Services</a></li>
-            <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+
+            <!-- 🔴 Mobile menu - only show Post a Service to providers -->
+            @if (isProvider)
+            {
+                <li><a asp-controller="PostJobs" asp-action="Create">Post a Service</a></li>
+            }
+
             <li><a href="#how-it-works">How It Works</a></li>
             <li><a href="#testimonials">Testimonials</a></li>
-            <li><a asp-controller="Account" asp-action="Login">Log In</a></li>
-            <li><a asp-controller="Account" asp-action="Register">Sign Up</a></li>
+
+            @if (isLoggedIn)
+            {
+                <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="mobile-user-info">
+                    <hr />
+                    <span><i class="fas fa-user-circle"></i> @userName</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-small btn-logout mobile-logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li><a asp-controller="Account" asp-action="Login">Log In</a></li>
+                <li><a asp-controller="Account" asp-action="Register">Sign Up</a></li>
+            }
         </ul>
     </div>
 </header>
+
+<style>
+    /* Header action buttons */
+    .btn-logout {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.3s;
+    }
+
+        .btn-logout:hover {
+            background: #c82333;
+        }
+
+    .welcome-message {
+        margin-right: 15px;
+        color: #333;
+        font-weight: 500;
+    }
+
+        .welcome-message i {
+            color: #4a6cf7;
+            margin-right: 5px;
+        }
+
+    .provider-badge {
+        background: #28a745;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        margin-left: 5px;
+    }
+
+    .customer-badge {
+        background: #ffc107;
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        margin-left: 5px;
+    }
+
+    .mobile-user-info {
+        padding: 10px 0;
+        background: #f8f9fa;
+        margin-top: 10px;
+    }
+
+        .mobile-user-info span {
+            display: block;
+            padding: 10px;
+            color: #333;
+        }
+
+    .mobile-logout {
+        width: 90%;
+        margin: 0 auto 10px;
+        display: block;
+    }
+
+    hr {
+        margin: 10px 0;
+        border: none;
+        border-top: 1px solid #dee2e6;
+    }
+</style>
 
 <script>
     // Mobile menu toggle
@@ -68,4 +512,4 @@
             });
         }
     });
-</script>
+</script> *@

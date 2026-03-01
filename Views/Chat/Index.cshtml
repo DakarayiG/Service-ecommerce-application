@@ -1,0 +1,122 @@
+﻿@model List<phpMVC.Models.ConversationSummary>
+@{
+    ViewData["Title"] = "Chats | WorkConnect";
+    string myId = Context.Session.GetString("UserId");
+    string myType = Context.Session.GetString("UserType");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/chat.css" />
+}
+
+<section class="chat-inbox-section">
+    <div class="container">
+        <div class="chat-inbox-header">
+            <h1><i class="fas fa-comments"></i> My Chats</h1>
+            <p>Your conversations with @(myType == "provider" ? "customers" : "service providers")</p>
+        </div>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]</div>
+        }
+
+        <!-- New Conversation Search -->
+        <div class="new-chat-box">
+            <h3><i class="fas fa-plus-circle"></i> Start a New Conversation</h3>
+            <div class="search-input-wrap">
+                <input type="text" id="newChatSearch" placeholder="Search for a @(myType == "provider" ? "customer" : "provider") by name..." autocomplete="off" />
+                <i class="fas fa-search search-icon"></i>
+                <div id="newChatResults" class="search-dropdown hidden"></div>
+            </div>
+        </div>
+
+        <!-- Conversation List -->
+        <div class="conversation-list">
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var convo in Model)
+                {
+                    <a href="/Chat/Open/@convo.OtherUserId" class="conversation-item @(convo.UnreadCount > 0 ? "has-unread" : "")">
+                        <div class="convo-avatar">
+                            <span class="avatar-initials">@convo.OtherUserName.Substring(0, 1).ToUpper()</span>
+                            <span class="user-type-dot @convo.OtherUserType"></span>
+                        </div>
+                        <div class="convo-info">
+                            <div class="convo-top">
+                                <span class="convo-name">@convo.OtherUserName</span>
+                                <span class="convo-time">@convo.LastTime.ToString("MMM dd")</span>
+                            </div>
+                            <div class="convo-bottom">
+                                <span class="convo-preview">@convo.LastMessage</span>
+                                @if (convo.UnreadCount > 0)
+                                {
+                                    <span class="unread-badge">@convo.UnreadCount</span>
+                                }
+                            </div>
+                            <span class="user-type-label @convo.OtherUserType">@convo.OtherUserType</span>
+                        </div>
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="empty-chat-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <h3>No conversations yet</h3>
+                    <p>@(myType == "customer" ? "Browse services and message a provider to get started." : "Wait for customers to message you, or search above.")</p>
+                    @if (myType == "customer")
+                    {
+                        <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Browse Services
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const myType = '@myType';
+        const searchInput = document.getElementById('newChatSearch');
+        const resultsBox = document.getElementById('newChatResults');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimeout);
+            const q = this.value.trim();
+            if (q.length < 2) { resultsBox.classList.add('hidden'); return; }
+
+            searchTimeout = setTimeout(() => {
+                fetch(`/Chat/SearchUsers?q=${encodeURIComponent(q)}`)
+                    .then(r => r.json())
+                    .then(users => {
+                        resultsBox.innerHTML = '';
+                        if (users.length === 0) {
+                            resultsBox.innerHTML = '<div class="no-results">No users found</div>';
+                        } else {
+                            users.forEach(u => {
+                                const div = document.createElement('div');
+                                div.className = 'search-result-item';
+                                div.innerHTML = `
+                                            <span class="result-avatar">${u.firstName.charAt(0)}</span>
+                                            <span class="result-name">${u.firstName} ${u.lastName}</span>
+                                            <span class="result-type ${u.userType}">${u.userType}</span>`;
+                                div.onclick = () => window.location.href = `/Chat/Open/${u.id}`;
+                                resultsBox.appendChild(div);
+                            });
+                        }
+                        resultsBox.classList.remove('hidden');
+                    });
+            }, 300);
+        });
+
+        document.addEventListener('click', e => {
+            if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+                resultsBox.classList.add('hidden');
+            }
+        });
+    </script>
+}

@@ -1,0 +1,380 @@
+﻿@model List<phpMVC.Models.Booking>
+@{
+    ViewData["Title"] = "My Bookings | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>My Bookings</h1>
+        <p>Track all your service bookings and pricing</p>
+    </div>
+</section>
+
+<!-- Bookings Section -->
+<section class="orders-section">
+    <div class="container">
+        <div class="orders-header">
+            <h2>
+                <i class="fas fa-list-alt"></i>
+                My Service Bookings
+                <span class="badge">@Model.Count</span>
+            </h2>
+            <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Book New Service
+            </a>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="orders-grid">
+                @foreach (var booking in Model)
+                {
+                    <div class="order-card customer-booking">
+                        <div class="order-header">
+                            @if (booking.Status == "pending")
+                            {
+                                <span class="order-status status-pending">
+                                    <i class="fas fa-clock"></i> Pending Review
+                                </span>
+                            }
+                            else if (booking.Status == "accepted")
+                            {
+                                <span class="order-status status-accepted">
+                                    <i class="fas fa-check-circle"></i> Accepted
+                                </span>
+                            }
+                            else if (booking.Status == "rejected")
+                            {
+                                <span class="order-status status-rejected">
+                                    <i class="fas fa-times-circle"></i> Rejected
+                                </span>
+                            }
+                            else if (booking.Status == "completed")
+                            {
+                                <span class="order-status status-completed">
+                                    <i class="fas fa-check-double"></i> Completed
+                                </span>
+                            }
+
+                            <span class="order-date">
+                                <i class="fas fa-calendar"></i>
+                                Booked: @booking.CreatedAt.ToString("MMM dd, yyyy")
+                            </span>
+                        </div>
+
+                        <div class="order-body">
+                            <!-- Service Info -->
+                            <div class="service-info-section">
+                                @if (!string.IsNullOrEmpty(booking.ServiceImage))
+                                {
+                                    <img src="@booking.ServiceImage" alt="@booking.ServiceName" class="order-service-image" />
+                                }
+                                <div class="service-details">
+                                    <h3>@booking.ServiceName</h3>
+                                    
+                                    <!-- Price Information -->
+                                    <div class="price-history">
+                                        <h5><i class="fas fa-dollar-sign"></i> Pricing Details</h5>
+                                        <div class="price-history-row">
+                                            <span>Listed Price:</span>
+                                            <span>$@booking.ServicePrice.ToString("0.00")</span>
+                                        </div>
+                                        <div class="price-history-row">
+                                            <span>Your Proposed Price:</span>
+                                            <span>$@booking.ProposedPrice.ToString("0.00")</span>
+                                        </div>
+                                        
+                                        @if (booking.Status == "accepted" && booking.AgreedPrice.HasValue)
+                                        {
+                                            <div class="price-history-row final-price">
+                                                <span><i class="fas fa-check"></i> Agreed Price:</span>
+                                                <span>$@booking.AgreedPrice.Value.ToString("0.00")</span>
+                                            </div>
+                                        }
+                                        else if (booking.Status == "pending")
+                                        {
+                                            <div class="price-history-row" style="background: #fff3cd; margin: 5px -15px 0; padding: 8px 15px; border-radius: 5px;">
+                                                <span style="color: #856404;">
+                                                    <i class="fas fa-hourglass-half"></i> Awaiting Response
+                                                </span>
+                                                <span style="color: #856404;">-</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scheduled Date -->
+                            <div class="scheduled-date-highlight">
+                                <i class="fas fa-calendar-day"></i>
+                                <div>
+                                    <span class="label">Scheduled For:</span>
+                                    <span class="date">@booking.BookingDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                            </div>
+
+                            <!-- Provider Info -->
+                            <div class="customer-info">
+                                <h4><i class="fas fa-user-tie"></i> Service Provider</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@booking.ProviderName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:@booking.ProviderEmail">@booking.ProviderEmail</a>
+                                </div>
+                                @if (!string.IsNullOrEmpty(booking.ProviderPhone))
+                                {
+                                    <div class="info-row">
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:@booking.ProviderPhone">@booking.ProviderPhone</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Your Request -->
+                            <div class="booking-details">
+                                <h4><i class="fas fa-comment-dots"></i> Your Request</h4>
+                                <div class="customer-notes">
+                                    <p>@booking.CustomerNotes</p>
+                                </div>
+                            </div>
+
+                            <!-- Status Message -->
+                            @if (booking.Status == "pending")
+                            {
+                                <div class="status-message status-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Waiting for provider to review your booking request and proposed price of $@booking.ProposedPrice.ToString("0.00")</span>
+                                </div>
+                            }
+                            else if (booking.Status == "accepted")
+                            {
+                                <div class="status-message status-success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Your booking has been confirmed at $@(booking.AgreedPrice?.ToString("0.00") ?? booking.ProposedPrice.ToString("0.00"))! The provider will contact you soon.</span>
+                                </div>
+                            }
+                            else if (booking.Status == "rejected")
+                            {
+                                <div class="status-message status-danger">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>This booking was not accepted. Your proposed price was $@booking.ProposedPrice.ToString("0.00"). Please try booking another service.</span>
+                                </div>
+                            }
+
+                            <!-- Contact Actions (only for accepted bookings) -->
+                            @if (booking.Status == "accepted")
+                            {
+                                <div class="quick-actions">
+                                    <a href="mailto:@booking.ProviderEmail" class="action-link">
+                                        <i class="fas fa-envelope"></i> Email Provider
+                                    </a>
+                                    @if (!string.IsNullOrEmpty(booking.ProviderPhone))
+                                    {
+                                        <a href="tel:@booking.ProviderPhone" class="action-link">
+                                            <i class="fas fa-phone"></i> Call Provider
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No Bookings Yet</h3>
+                <p>You haven't made any service bookings yet. Browse our services and find the help you need!</p>
+                <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Browse Services
+                </a>
+            </div>
+        }
+    </div>
+</section>
+@* @model List<phpMVC.Models.Booking>
+@{
+    ViewData["Title"] = "My Bookings | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>My Bookings</h1>
+        <p>Track all your service bookings</p>
+    </div>
+</section>
+
+<!-- Bookings Section -->
+<section class="orders-section">
+    <div class="container">
+        <div class="orders-header">
+            <h2>
+                <i class="fas fa-list-alt"></i>
+                My Service Bookings
+                <span class="badge">@Model.Count</span>
+            </h2>
+            <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Book New Service
+            </a>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="orders-grid">
+                @foreach (var booking in Model)
+                {
+                    <div class="order-card customer-booking">
+                        <div class="order-header">
+                            @if (booking.Status == "pending")
+                            {
+                                <span class="order-status status-pending">
+                                    <i class="fas fa-clock"></i> Pending Review
+                                </span>
+                            }
+                            else if (booking.Status == "accepted")
+                            {
+                                <span class="order-status status-accepted">
+                                    <i class="fas fa-check-circle"></i> Accepted
+                                </span>
+                            }
+                            else if (booking.Status == "rejected")
+                            {
+                                <span class="order-status status-rejected">
+                                    <i class="fas fa-times-circle"></i> Rejected
+                                </span>
+                            }
+                            else if (booking.Status == "completed")
+                            {
+                                <span class="order-status status-completed">
+                                    <i class="fas fa-check-double"></i> Completed
+                                </span>
+                            }
+
+                            <span class="order-date">
+                                <i class="fas fa-calendar"></i>
+                                Booked: @booking.CreatedAt.ToString("MMM dd, yyyy")
+                            </span>
+                        </div>
+
+                        <div class="order-body">
+                            <!-- Service Info -->
+                            <div class="service-info-section">
+                                @if (!string.IsNullOrEmpty(booking.ServiceImage))
+                                {
+                                    <img src="@booking.ServiceImage" alt="@booking.ServiceName" class="order-service-image" />
+                                }
+                                <div class="service-details">
+                                    <h3>@booking.ServiceName</h3>
+                                    <p class="price">$@booking.ServicePrice.ToString("0.00")</p>
+                                </div>
+                            </div>
+
+                            <!-- Scheduled Date -->
+                            <div class="scheduled-date-highlight">
+                                <i class="fas fa-calendar-day"></i>
+                                <div>
+                                    <span class="label">Scheduled For:</span>
+                                    <span class="date">@booking.BookingDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                            </div>
+
+                            <!-- Provider Info -->
+                            <div class="customer-info">
+                                <h4><i class="fas fa-user-tie"></i> Service Provider</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@booking.ProviderName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:@booking.ProviderEmail">@booking.ProviderEmail</a>
+                                </div>
+                                @if (!string.IsNullOrEmpty(booking.ProviderPhone))
+                                {
+                                    <div class="info-row">
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:@booking.ProviderPhone">@booking.ProviderPhone</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Your Request -->
+                            <div class="booking-details">
+                                <h4><i class="fas fa-comment-dots"></i> Your Request</h4>
+                                <div class="customer-notes">
+                                    <p>@booking.CustomerNotes</p>
+                                </div>
+                            </div>
+
+                            <!-- Status Message -->
+                            @if (booking.Status == "pending")
+                            {
+                                <div class="status-message status-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Waiting for provider to review your booking request.</span>
+                                </div>
+                            }
+                            else if (booking.Status == "accepted")
+                            {
+                                <div class="status-message status-success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Your booking has been confirmed! The provider will contact you soon.</span>
+                                </div>
+                            }
+                            else if (booking.Status == "rejected")
+                            {
+                                <div class="status-message status-danger">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>This booking was not accepted. Please try booking another service.</span>
+                                </div>
+                            }
+
+                            <!-- Contact Actions (only for accepted bookings) -->
+                            @if (booking.Status == "accepted")
+                            {
+                                <div class="quick-actions">
+                                    <a href="mailto:@booking.ProviderEmail" class="action-link">
+                                        <i class="fas fa-envelope"></i> Email Provider
+                                    </a>
+                                    @if (!string.IsNullOrEmpty(booking.ProviderPhone))
+                                    {
+                                        <a href="tel:@booking.ProviderPhone" class="action-link">
+                                            <i class="fas fa-phone"></i> Call Provider
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No Bookings Yet</h3>
+                <p>You haven't made any service bookings yet. Browse our services and find the help you need!</p>
+                <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Browse Services
+                </a>
+            </div>
+        }
+    </div>
+</section>
+ *@

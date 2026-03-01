@@ -1,0 +1,277 @@
+﻿@model List<phpMVC.Models.Booking>
+@{
+    ViewData["Title"] = "Accepted Bookings | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>Accepted Bookings</h1>
+        <p>Your confirmed jobs with agreed pricing</p>
+    </div>
+</section>
+
+<!-- Accepted Bookings Section -->
+<section class="orders-section">
+    <div class="container">
+        <div class="orders-header">
+            <h2>
+                <i class="fas fa-check-circle"></i>
+                Accepted Jobs
+                <span class="badge badge-success">@Model.Count</span>
+            </h2>
+            <a asp-action="Orders" class="btn btn-outline">
+                <i class="fas fa-clock"></i> View Pending Orders
+            </a>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="orders-grid">
+                @foreach (var booking in Model)
+                {
+                    <div class="order-card accepted-card">
+                        <div class="order-header">
+                            <span class="order-status status-accepted">
+                                <i class="fas fa-check-circle"></i> Accepted
+                            </span>
+                            <span class="order-date">
+                                <i class="fas fa-calendar"></i>
+                                Booked: @booking.CreatedAt.ToString("MMM dd, yyyy")
+                            </span>
+                        </div>
+
+                        <div class="order-body">
+                            <!-- Service Info -->
+                            <div class="service-info-section">
+                                @if (!string.IsNullOrEmpty(booking.ServiceImage))
+                                {
+                                    <img src="@booking.ServiceImage" alt="@booking.ServiceName" class="order-service-image" />
+                                }
+                                <div class="service-details">
+                                    <h3>@booking.ServiceName</h3>
+
+                                    <!-- Price Information -->
+                                    <div class="price-history">
+                                        <h5><i class="fas fa-dollar-sign"></i> Pricing Details</h5>
+                                        <div class="price-history-row">
+                                            <span>Your Listed Price:</span>
+                                            <span>$@booking.ServicePrice.ToString("0.00")</span>
+                                        </div>
+                                        <div class="price-history-row">
+                                            <span>Customer Proposed:</span>
+                                            <span>$@booking.ProposedPrice.ToString("0.00")</span>
+                                        </div>
+                                        <div class="price-history-row final-price">
+                                            <span><i class="fas fa-check"></i> Agreed Price:</span>
+                                            <span>$@(booking.AgreedPrice?.ToString("0.00") ?? booking.ProposedPrice.ToString("0.00"))</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scheduled Date (Prominent) -->
+                            <div class="scheduled-date-highlight">
+                                <i class="fas fa-calendar-day"></i>
+                                <div>
+                                    <span class="label">Scheduled For:</span>
+                                    <span class="date">@booking.BookingDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                            </div>
+
+                            <!-- Customer Info -->
+                            <div class="customer-info">
+                                <h4><i class="fas fa-user"></i> Customer Contact</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@booking.CustomerName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:@booking.CustomerEmail">@booking.CustomerEmail</a>
+                                </div>
+                                @if (!string.IsNullOrEmpty(booking.CustomerPhone))
+                                {
+                                    <div class="info-row">
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:@booking.CustomerPhone">@booking.CustomerPhone</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Job Details -->
+                            <div class="booking-details">
+                                <h4><i class="fas fa-clipboard-list"></i> Job Requirements</h4>
+                                <div class="customer-notes">
+                                    <i class="fas fa-comment-dots"></i>
+                                    <div>
+                                        <p>@booking.CustomerNotes</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="quick-actions">
+                                <a href="mailto:@booking.CustomerEmail" class="action-link">
+                                    <i class="fas fa-envelope"></i> Email Customer
+                                </a>
+                                @if (!string.IsNullOrEmpty(booking.CustomerPhone))
+                                {
+                                    <a href="tel:@booking.CustomerPhone" class="action-link">
+                                        <i class="fas fa-phone"></i> Call Customer
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No Accepted Bookings</h3>
+                <p>You haven't accepted any bookings yet.</p>
+                <a asp-action="Orders" class="btn btn-primary">
+                    <i class="fas fa-clipboard-list"></i> View Pending Orders
+                </a>
+            </div>
+        }
+    </div>
+</section>
+@* @model List<phpMVC.Models.Booking>
+@{
+    ViewData["Title"] = "Accepted Bookings | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>Accepted Bookings</h1>
+        <p>Your confirmed jobs and appointments</p>
+    </div>
+</section>
+
+<!-- Accepted Bookings Section -->
+<section class="orders-section">
+    <div class="container">
+        <div class="orders-header">
+            <h2>
+                <i class="fas fa-check-circle"></i>
+                Accepted Jobs
+                <span class="badge badge-success">@Model.Count</span>
+            </h2>
+            <a asp-action="Orders" class="btn btn-outline">
+                <i class="fas fa-clock"></i> View Pending Orders
+            </a>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="orders-grid">
+                @foreach (var booking in Model)
+                {
+                    <div class="order-card accepted-card">
+                        <div class="order-header">
+                            <span class="order-status status-accepted">
+                                <i class="fas fa-check-circle"></i> Accepted
+                            </span>
+                            <span class="order-date">
+                                <i class="fas fa-calendar"></i>
+                                Booked: @booking.CreatedAt.ToString("MMM dd, yyyy")
+                            </span>
+                        </div>
+
+                        <div class="order-body">
+                            <!-- Service Info -->
+                            <div class="service-info-section">
+                                @if (!string.IsNullOrEmpty(booking.ServiceImage))
+                                {
+                                    <img src="@booking.ServiceImage" alt="@booking.ServiceName" class="order-service-image" />
+                                }
+                                <div class="service-details">
+                                    <h3>@booking.ServiceName</h3>
+                                    <p class="price">$@booking.ServicePrice.ToString("0.00")</p>
+                                </div>
+                            </div>
+
+                            <!-- Scheduled Date (Prominent) -->
+                            <div class="scheduled-date-highlight">
+                                <i class="fas fa-calendar-day"></i>
+                                <div>
+                                    <span class="label">Scheduled For:</span>
+                                    <span class="date">@booking.BookingDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                            </div>
+
+                            <!-- Customer Info -->
+                            <div class="customer-info">
+                                <h4><i class="fas fa-user"></i> Customer Contact</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@booking.CustomerName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:@booking.CustomerEmail">@booking.CustomerEmail</a>
+                                </div>
+                                @if (!string.IsNullOrEmpty(booking.CustomerPhone))
+                                {
+                                    <div class="info-row">
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:@booking.CustomerPhone">@booking.CustomerPhone</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Job Details -->
+                            <div class="booking-details">
+                                <h4><i class="fas fa-clipboard-list"></i> Job Requirements</h4>
+                                <div class="customer-notes">
+                                    <i class="fas fa-comment-dots"></i>
+                                    <div>
+                                        <p>@booking.CustomerNotes</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="quick-actions">
+                                <a href="mailto:@booking.CustomerEmail" class="action-link">
+                                    <i class="fas fa-envelope"></i> Email Customer
+                                </a>
+                                @if (!string.IsNullOrEmpty(booking.CustomerPhone))
+                                {
+                                    <a href="tel:@booking.CustomerPhone" class="action-link">
+                                        <i class="fas fa-phone"></i> Call Customer
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No Accepted Bookings</h3>
+                <p>You haven't accepted any bookings yet.</p>
+                <a asp-action="Orders" class="btn btn-primary">
+                    <i class="fas fa-clipboard-list"></i> View Pending Orders
+                </a>
+            </div>
+        }
+    </div>
+</section>
+ *@

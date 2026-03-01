@@ -43,6 +43,7 @@ namespace phpMVC.Models
         public string? ImageUrl { get; set; }
         public string ProviderName { get; set; } = "Service Provider";
         public string? ProviderImage { get; set; }
+        public int ProviderId { get; set; }
         public string? BadgeText { get; set; }
         public string? BadgeClass { get; set; }
     }

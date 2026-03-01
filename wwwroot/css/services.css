@@ -348,3 +348,19 @@
         width: 250px;
     }
 }
+/* Chat button*/
+.service-card-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.msg-btn {
+    background: #007bff;
+    color: white;
+}
+
+    .msg-btn:hover {
+        background: #0056b3;
+    }

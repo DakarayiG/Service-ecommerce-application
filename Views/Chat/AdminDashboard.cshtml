@@ -1,0 +1,213 @@
+﻿@model List<phpMVC.Models.AdminConversationSummary>
+@{
+    ViewData["Title"] = "Admin Chat Monitor | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/chat.css" />
+}
+
+<section class="admin-chat-section">
+    <div class="container">
+        <div class="admin-chat-header">
+            <h1><i class="fas fa-shield-alt"></i> Chat Monitor</h1>
+            <p>View all conversations between customers and providers</p>
+        </div>
+
+        <!-- Search / Filter -->
+        <div class="admin-filter-bar">
+            <input type="text" id="adminSearch" placeholder="Search by user name..." />
+            <i class="fas fa-search"></i>
+        </div>
+
+        <div class="admin-layout">
+            <!-- Conversations list -->
+            <div class="admin-convo-list" id="adminConvoList">
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var convo in Model)
+                    {
+                        <div class="admin-convo-item"
+                             data-u1="@convo.User1Id"
+                             data-u2="@convo.User2Id"
+                             data-name="@convo.User1Name @convo.User2Name">
+                            <div class="admin-convo-avatars">
+                                <span class="adm-av @convo.User1Type">@convo.User1Name.Substring(0, 1)</span>
+                                <span class="adm-av @convo.User2Type">@convo.User2Name.Substring(0, 1)</span>
+                            </div>
+                            <div class="admin-convo-info">
+                                <div class="admin-convo-names">
+                                    <span class="adm-name">@convo.User1Name</span>
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span class="adm-name">@convo.User2Name</span>
+                                </div>
+                                <div class="admin-convo-meta">
+                                    <span><i class="fas fa-comment"></i> @convo.MessageCount msgs</span>
+                                    <span><i class="fas fa-clock"></i> @convo.LastActivity.ToString("MMM dd, HH:mm")</span>
+                                    @if (convo.UnreadCount > 0)
+                                    {
+                                        <span class="adm-unread">@convo.UnreadCount unread</span>
+                                    }
+                                </div>
+                                <div class="admin-type-badges">
+                                    <span class="type-badge @convo.User1Type">@convo.User1Type</span>
+                                    <span class="type-badge @convo.User2Type">@convo.User2Type</span>
+                                </div>
+                            </div>
+                            <button class="view-chat-btn" onclick="loadAdminChat(@convo.User1Id, @convo.User2Id, '@convo.User1Name', '@convo.User2Name')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-admin">
+                        <i class="fas fa-comments"></i>
+                        <p>No conversations found.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Chat viewer -->
+            <div class="admin-chat-viewer" id="adminChatViewer">
+                <div class="admin-viewer-placeholder">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>Select a conversation to view the full chat</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SignalR for live monitoring -->
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        // ── Live admin monitor connection ────────────────────────────
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("AdminReceiveMessage", (data) => {
+            // If we're currently viewing this conversation, append the message live
+            const viewerTitle = document.getElementById('viewerTitle');
+            if (!viewerTitle) return;
+
+            const currentPair = viewerTitle.dataset.pair;
+            const pair1 = `${Math.min(data.senderId, data.receiverId)}-${Math.max(data.senderId, data.receiverId)}`;
+            if (currentPair === pair1) {
+                appendAdminMessage(data);
+            }
+
+            // Highlight the conversation in the list
+            highlightConvo(data.senderId, data.receiverId);
+        });
+
+        // Join as admin monitor
+        connection.start()
+            .then(() => connection.invoke("JoinConversation", 0))
+            .catch(console.error);
+
+        // ── Load conversation into viewer ────────────────────────────
+        function loadAdminChat(u1, u2, name1, name2) {
+            // Highlight selected
+            document.querySelectorAll('.admin-convo-item').forEach(el => el.classList.remove('selected'));
+            const items = document.querySelectorAll('.admin-convo-item');
+            items.forEach(el => {
+                if (parseInt(el.dataset.u1) === u1 && parseInt(el.dataset.u2) === u2) {
+                    el.classList.add('selected');
+                }
+            });
+
+            fetch(`/Chat/AdminViewChat?user1Id=${u1}&user2Id=${u2}`)
+                .then(r => r.json())
+                .then(data => renderAdminChat(u1, u2, data.user1Name, data.user2Name, data.messages));
+        }
+
+        function renderAdminChat(u1, u2, name1, name2, messages) {
+            const viewer = document.getElementById('adminChatViewer');
+            const pairKey = `${Math.min(u1, u2)}-${Math.max(u1, u2)}`;
+
+            viewer.innerHTML = `
+                        <div class="admin-viewer-header" id="viewerTitle" data-pair="${pairKey}">
+                            <div class="viewer-users">
+                                <span class="viewer-avatar">${name1.charAt(0)}</span>
+                                <span>${name1}</span>
+                                <i class="fas fa-exchange-alt"></i>
+                                <span class="viewer-avatar">${name2.charAt(0)}</span>
+                                <span>${name2}</span>
+                            </div>
+                            <span class="viewer-count">${messages.length} messages</span>
+                        </div>
+                        <div class="admin-messages-area" id="adminMessages"></div>`;
+
+            const area = document.getElementById('adminMessages');
+            if (messages.length === 0) {
+                area.innerHTML = '<div class="no-messages-admin"><i class="fas fa-comment-slash"></i><p>No messages yet</p></div>';
+                return;
+            }
+
+            let lastDate = '';
+            messages.forEach(m => {
+                const msgDate = new Date(m.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                if (msgDate !== lastDate) {
+                    area.innerHTML += `<div class="admin-date-sep"><span>${msgDate}</span></div>`;
+                    lastDate = msgDate;
+                }
+                const isU1 = m.senderId === u1;
+                area.innerHTML += `
+                            <div class="admin-message ${isU1 ? 'left' : 'right'}">
+                                <span class="adm-msg-avatar">${m.senderName.charAt(0)}</span>
+                                <div class="adm-msg-body">
+                                    <span class="adm-msg-name">${m.senderName} <em>(${m.senderType})</em></span>
+                                    <p>${escapeHtml(m.message)}</p>
+                                    <span class="adm-msg-time">${new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                            </div>`;
+            });
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function appendAdminMessage(data) {
+            const area = document.getElementById('adminMessages');
+            if (!area) return;
+            area.innerHTML += `
+                        <div class="admin-message live-message">
+                            <span class="adm-msg-avatar live">${data.senderName.charAt(0)}</span>
+                            <div class="adm-msg-body">
+                                <span class="adm-msg-name">${data.senderName} <em>(${data.senderType})</em> <span class="live-badge">LIVE</span></span>
+                                <p>${escapeHtml(data.message)}</p>
+                                <span class="adm-msg-time">${data.timestamp}</span>
+                            </div>
+                        </div>`;
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function highlightConvo(s, r) {
+            document.querySelectorAll('.admin-convo-item').forEach(el => {
+                const u1 = parseInt(el.dataset.u1);
+                const u2 = parseInt(el.dataset.u2);
+                if ((u1 === s && u2 === r) || (u1 === r && u2 === s)) {
+                    el.classList.add('live-activity');
+                    setTimeout(() => el.classList.remove('live-activity'), 3000);
+                }
+            });
+        }
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.appendChild(document.createTextNode(str));
+            return d.innerHTML;
+        }
+
+        // ── Filter conversations ─────────────────────────────────────
+        document.getElementById('adminSearch').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.admin-convo-item').forEach(el => {
+                el.style.display = el.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+    </script>
+}

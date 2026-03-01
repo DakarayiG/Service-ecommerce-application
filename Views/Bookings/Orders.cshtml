@@ -1,0 +1,560 @@
+﻿@model List<phpMVC.Models.Booking>
+@{
+    ViewData["Title"] = "Pending Orders | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>Pending Orders</h1>
+        <p>Review booking requests and proposed prices</p>
+    </div>
+</section>
+
+<!-- Orders Section -->
+<section class="orders-section">
+    <div class="container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="orders-header">
+            <h2>
+                <i class="fas fa-clipboard-list"></i>
+                Booking Requests
+                <span class="badge">@Model.Count</span>
+            </h2>
+            <a asp-action="AcceptedBookings" class="btn btn-outline">
+                <i class="fas fa-check-double"></i> View Accepted Jobs
+            </a>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="orders-grid">
+                @foreach (var booking in Model)
+                {
+                    <div class="order-card" data-booking-id="@booking.Id">
+                        <div class="order-header">
+                            <span class="order-status status-pending">
+                                <i class="fas fa-clock"></i> Pending
+                            </span>
+                            <span class="order-date">
+                                <i class="fas fa-calendar"></i>
+                                Requested: @booking.CreatedAt.ToString("MMM dd, yyyy")
+                            </span>
+                        </div>
+
+                        <div class="order-body">
+                            <!-- Service Info -->
+                            <div class="service-info-section">
+                                @if (!string.IsNullOrEmpty(booking.ServiceImage))
+                                {
+                                    <img src="@booking.ServiceImage" alt="@booking.ServiceName" class="order-service-image" />
+                                }
+                                <div class="service-details">
+                                    <h3>@booking.ServiceName</h3>
+                                    <div class="price-comparison">
+                                        <div class="price-item">
+                                            <small>Your Listed Price</small>
+                                            <span class="original-price">$@booking.ServicePrice.ToString("0.00")</span>
+                                        </div>
+                                        <i class="fas fa-arrow-right price-arrow"></i>
+                                        <div class="price-item">
+                                            <small>Customer's Offer</small>
+                                            <span class="proposed-price">$@booking.ProposedPrice.ToString("0.00")</span>
+                                        </div>
+                                    </div>
+                                    @if (booking.ProposedPrice != booking.ServicePrice)
+                                    {
+                                        var difference = booking.ProposedPrice - booking.ServicePrice;
+                                        var differenceClass = difference >= 0 ? "price-increase" : "price-decrease";
+                                        <div class="price-difference @differenceClass">
+                                            <i class="fas fa-@(difference >= 0 ? "arrow-up" : "arrow-down")"></i>
+                                            @Math.Abs(difference).ToString("C2") @(difference >= 0 ? "more" : "less") than listed
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Customer Info -->
+                            <div class="customer-info">
+                                <h4><i class="fas fa-user"></i> Customer Details</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@booking.CustomerName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:@booking.CustomerEmail">@booking.CustomerEmail</a>
+                                </div>
+                                @if (!string.IsNullOrEmpty(booking.CustomerPhone))
+                                {
+                                    <div class="info-row">
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:@booking.CustomerPhone">@booking.CustomerPhone</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Booking Details -->
+                            <div class="booking-details">
+                                <h4><i class="fas fa-calendar-alt"></i> Booking Details</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span><strong>Scheduled Date:</strong> @booking.BookingDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                                <div class="customer-notes">
+                                    <i class="fas fa-comment-dots"></i>
+                                    <div>
+                                        <strong>Customer Notes:</strong>
+                                        <p>@booking.CustomerNotes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Actions -->
+                        <div class="order-actions">
+                            <button type="button"
+                                    class="btn btn-success accept-btn"
+                                    onclick="acceptBooking(@booking.Id)">
+                                <i class="fas fa-check"></i> Accept ($@booking.ProposedPrice.ToString("0.00"))
+                            </button>
+                            <button type="button"
+                                    class="btn btn-danger reject-btn"
+                                    onclick="rejectBooking(@booking.Id)">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </div>
+                        <div class="acceptance-note">
+                            <i class="fas fa-info-circle"></i>
+                            <small>By accepting, you agree to the customer's proposed price of $@booking.ProposedPrice.ToString("0.00")</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Pending Orders</h3>
+                <p>You don't have any pending booking requests at the moment.</p>
+                <a asp-action="AcceptedBookings" class="btn btn-primary">
+                    <i class="fas fa-check-double"></i> View Accepted Jobs
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function acceptBooking(bookingId) {
+            if (!confirm('Are you sure you want to accept this booking with the proposed price?')) {
+                return;
+            }
+
+            const card = document.querySelector(`[data-booking-id="${bookingId}"]`);
+            const acceptBtn = card.querySelector('.accept-btn');
+            const rejectBtn = card.querySelector('.reject-btn');
+
+            acceptBtn.disabled = true;
+            rejectBtn.disabled = true;
+            acceptBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accepting...';
+
+            fetch('/Bookings/AcceptBooking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `bookingId=${bookingId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        card.style.opacity = '0.5';
+                        setTimeout(() => {
+                            card.remove();
+                            showMessage('Booking accepted successfully! Price confirmed.', 'success');
+                            updateBadgeCount();
+                        }, 500);
+                    } else {
+                        showMessage('Error accepting booking. Please try again.', 'error');
+                        acceptBtn.disabled = false;
+                        rejectBtn.disabled = false;
+                        acceptBtn.innerHTML = '<i class="fas fa-check"></i> Accept';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('Error accepting booking. Please try again.', 'error');
+                    acceptBtn.disabled = false;
+                    rejectBtn.disabled = false;
+                    acceptBtn.innerHTML = '<i class="fas fa-check"></i> Accept';
+                });
+        }
+
+        function rejectBooking(bookingId) {
+            if (!confirm('Are you sure you want to reject this booking?')) {
+                return;
+            }
+
+            const card = document.querySelector(`[data-booking-id="${bookingId}"]`);
+            const acceptBtn = card.querySelector('.accept-btn');
+            const rejectBtn = card.querySelector('.reject-btn');
+
+            acceptBtn.disabled = true;
+            rejectBtn.disabled = true;
+            rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
+
+            fetch('/Bookings/RejectBooking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `bookingId=${bookingId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        card.style.opacity = '0.5';
+                        setTimeout(() => {
+                            card.remove();
+                            showMessage('Booking rejected.', 'info');
+                            updateBadgeCount();
+                        }, 500);
+                    } else {
+                        showMessage('Error rejecting booking. Please try again.', 'error');
+                        acceptBtn.disabled = false;
+                        rejectBtn.disabled = false;
+                        rejectBtn.innerHTML = '<i class="fas fa-times"></i> Reject';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('Error rejecting booking. Please try again.', 'error');
+                    acceptBtn.disabled = false;
+                    rejectBtn.disabled = false;
+                    rejectBtn.innerHTML = '<i class="fas fa-times"></i> Reject';
+                });
+        }
+
+        function showMessage(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' :
+                type === 'error' ? 'alert-danger' : 'alert-info';
+
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass}`;
+            alert.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+
+            const container = document.querySelector('.orders-section .container');
+            container.insertBefore(alert, container.firstChild);
+
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function updateBadgeCount() {
+            const badge = document.querySelector('.badge');
+            const remainingCards = document.querySelectorAll('.order-card').length;
+            if (badge) {
+                badge.textContent = remainingCards;
+            }
+
+            if (remainingCards === 0) {
+                location.reload();
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}
+@* @model List<phpMVC.Models.Booking>
+@{
+    ViewData["Title"] = "Pending Orders | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>Pending Orders</h1>
+        <p>Review and manage your booking requests</p>
+    </div>
+</section>
+
+<!-- Orders Section -->
+<section class="orders-section">
+    <div class="container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="orders-header">
+            <h2>
+                <i class="fas fa-clipboard-list"></i>
+                Booking Requests
+                <span class="badge">@Model.Count</span>
+            </h2>
+            <a asp-action="AcceptedBookings" class="btn btn-outline">
+                <i class="fas fa-check-double"></i> View Accepted Jobs
+            </a>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="orders-grid">
+                @foreach (var booking in Model)
+                {
+                    <div class="order-card" data-booking-id="@booking.Id">
+                        <div class="order-header">
+                            <span class="order-status status-pending">
+                                <i class="fas fa-clock"></i> Pending
+                            </span>
+                            <span class="order-date">
+                                <i class="fas fa-calendar"></i>
+                                Requested: @booking.CreatedAt.ToString("MMM dd, yyyy")
+                            </span>
+                        </div>
+
+                        <div class="order-body">
+                            <!-- Service Info -->
+                            <div class="service-info-section">
+                                @if (!string.IsNullOrEmpty(booking.ServiceImage))
+                                {
+                                    <img src="@booking.ServiceImage" alt="@booking.ServiceName" class="order-service-image" />
+                                }
+                                <div class="service-details">
+                                    <h3>@booking.ServiceName</h3>
+                                    <p class="price">$@booking.ServicePrice.ToString("0.00")</p>
+                                </div>
+                            </div>
+
+                            <!-- Customer Info -->
+                            <div class="customer-info">
+                                <h4><i class="fas fa-user"></i> Customer Details</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@booking.CustomerName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:@booking.CustomerEmail">@booking.CustomerEmail</a>
+                                </div>
+                                @if (!string.IsNullOrEmpty(booking.CustomerPhone))
+                                {
+                                    <div class="info-row">
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:@booking.CustomerPhone">@booking.CustomerPhone</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Booking Details -->
+                            <div class="booking-details">
+                                <h4><i class="fas fa-calendar-alt"></i> Booking Details</h4>
+                                <div class="info-row">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span><strong>Scheduled Date:</strong> @booking.BookingDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                                <div class="customer-notes">
+                                    <i class="fas fa-comment-dots"></i>
+                                    <div>
+                                        <strong>Customer Notes:</strong>
+                                        <p>@booking.CustomerNotes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Actions -->
+                        <div class="order-actions">
+                            <button type="button"
+                                    class="btn btn-success accept-btn"
+                                    onclick="acceptBooking(@booking.Id)">
+                                <i class="fas fa-check"></i> Accept Booking
+                            </button>
+                            <button type="button"
+                                    class="btn btn-danger reject-btn"
+                                    onclick="rejectBooking(@booking.Id)">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Pending Orders</h3>
+                <p>You don't have any pending booking requests at the moment.</p>
+                <a asp-action="AcceptedBookings" class="btn btn-primary">
+                    <i class="fas fa-check-double"></i> View Accepted Jobs
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function acceptBooking(bookingId) {
+            if (!confirm('Are you sure you want to accept this booking?')) {
+                return;
+            }
+
+            const card = document.querySelector(`[data-booking-id="${bookingId}"]`);
+            const acceptBtn = card.querySelector('.accept-btn');
+            const rejectBtn = card.querySelector('.reject-btn');
+
+            // Disable buttons
+            acceptBtn.disabled = true;
+            rejectBtn.disabled = true;
+            acceptBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accepting...';
+
+            fetch('/Bookings/AcceptBooking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `bookingId=${bookingId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Fade out the card
+                        card.style.opacity = '0.5';
+                        setTimeout(() => {
+                            card.remove();
+                            // Show success message
+                            showMessage('Booking accepted successfully!', 'success');
+                            // Update badge count
+                            updateBadgeCount();
+                        }, 500);
+                    } else {
+                        showMessage('Error accepting booking. Please try again.', 'error');
+                        acceptBtn.disabled = false;
+                        rejectBtn.disabled = false;
+                        acceptBtn.innerHTML = '<i class="fas fa-check"></i> Accept Booking';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('Error accepting booking. Please try again.', 'error');
+                    acceptBtn.disabled = false;
+                    rejectBtn.disabled = false;
+                    acceptBtn.innerHTML = '<i class="fas fa-check"></i> Accept Booking';
+                });
+        }
+
+        function rejectBooking(bookingId) {
+            if (!confirm('Are you sure you want to reject this booking?')) {
+                return;
+            }
+
+            const card = document.querySelector(`[data-booking-id="${bookingId}"]`);
+            const acceptBtn = card.querySelector('.accept-btn');
+            const rejectBtn = card.querySelector('.reject-btn');
+
+            // Disable buttons
+            acceptBtn.disabled = true;
+            rejectBtn.disabled = true;
+            rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
+
+            fetch('/Bookings/RejectBooking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `bookingId=${bookingId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Fade out the card
+                        card.style.opacity = '0.5';
+                        setTimeout(() => {
+                            card.remove();
+                            showMessage('Booking rejected.', 'info');
+                            updateBadgeCount();
+                        }, 500);
+                    } else {
+                        showMessage('Error rejecting booking. Please try again.', 'error');
+                        acceptBtn.disabled = false;
+                        rejectBtn.disabled = false;
+                        rejectBtn.innerHTML = '<i class="fas fa-times"></i> Reject';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('Error rejecting booking. Please try again.', 'error');
+                    acceptBtn.disabled = false;
+                    rejectBtn.disabled = false;
+                    rejectBtn.innerHTML = '<i class="fas fa-times"></i> Reject';
+                });
+        }
+
+        function showMessage(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' :
+                type === 'error' ? 'alert-danger' : 'alert-info';
+
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass}`;
+            alert.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+
+            const container = document.querySelector('.orders-section .container');
+            container.insertBefore(alert, container.firstChild);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function updateBadgeCount() {
+            const badge = document.querySelector('.badge');
+            const remainingCards = document.querySelectorAll('.order-card').length;
+            if (badge) {
+                badge.textContent = remainingCards;
+            }
+
+            // Show empty state if no more orders
+            if (remainingCards === 0) {
+                location.reload();
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}
+ *@

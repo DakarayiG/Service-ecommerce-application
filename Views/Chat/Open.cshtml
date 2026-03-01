@@ -1,0 +1,192 @@
+﻿@model phpMVC.Models.ChatViewModel
+@{
+    ViewData["Title"] = $"Chat with {Model.OtherUserName} | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/chat.css" />
+}
+
+<section class="chat-window-section">
+    <div class="container">
+        <div class="chat-layout">
+
+            <!-- Sidebar: conversation list -->
+            <div class="chat-sidebar" id="chatSidebar">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-comments"></i> Chats</h3>
+                    <a href="/Chat/Index" class="sidebar-all-link">View All</a>
+                </div>
+                <div id="sidebarConversations">
+                    <div class="sidebar-loading"><i class="fas fa-spinner fa-spin"></i></div>
+                </div>
+            </div>
+
+            <!-- Main chat window -->
+            <div class="chat-main">
+                <!-- Chat header -->
+                <div class="chat-header">
+                    <a href="/Chat/Index" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+                    <div class="chat-header-avatar">
+                        <span>@Model.OtherUserName.Substring(0, 1).ToUpper()</span>
+                    </div>
+                    <div class="chat-header-info">
+                        <h2>@Model.OtherUserName</h2>
+                        <span class="online-status @Model.OtherUserType">@Model.OtherUserType</span>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="messages-area" id="messagesArea">
+                    @if (Model.Messages.Count == 0)
+                    {
+                        <div class="no-messages">
+                            <i class="fas fa-comment-dots"></i>
+                            <p>Start the conversation!</p>
+                        </div>
+                    }
+                    else
+                    {
+                        string lastDate = "";
+                        foreach (var msg in Model.Messages)
+                        {
+                            string msgDate = msg.CreatedAt.ToString("MMMM dd, yyyy");
+                            if (msgDate != lastDate)
+                            {
+                                <div class="date-separator"><span>@msgDate</span></div>
+                                lastDate = msgDate;
+                            }
+
+                            bool isOwn = msg.SenderId == Model.MyUserId;
+                            <div class="message-bubble @(isOwn ? "own" : "other")" data-id="@msg.Id">
+                                @if (!isOwn)
+                                {
+                                    <span class="bubble-avatar">@msg.SenderName.Substring(0, 1).ToUpper()</span>
+                                }
+                                <div class="bubble-content">
+                                    <p>@msg.Message</p>
+                                    <span class="bubble-time">@msg.CreatedAt.ToString("hh:mm tt")</span>
+                                    @if (isOwn)
+                                    {
+                                        <span class="read-tick @(msg.IsRead ? "read" : "")">
+                                            <i class="fas fa-check-double"></i>
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <!-- Input -->
+                <div class="chat-input-area">
+                    <input type="text" id="messageInput"
+                           placeholder="Type a message..."
+                           maxlength="1000"
+                           autocomplete="off" />
+                    <button id="sendBtn" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const MY_ID = @Model.MyUserId;
+        const OTHER_ID = @Model.OtherUserId;
+        const OTHER_NAME = '@Html.Raw(Model.OtherUserName)';
+        const BOOKING_ID = @(Model.BookingId.HasValue ? Model.BookingId.Value.ToString() : "null");
+
+        const messagesArea = document.getElementById('messagesArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // ── SignalR connection ───────────────────────────────────────
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveMessage", (data) => {
+            appendMessage(data.senderId, data.senderName, data.message, data.timestamp, data.senderId === MY_ID);
+            if (data.senderId !== MY_ID) {
+                connection.invoke("MarkAsRead", OTHER_ID).catch(console.error);
+            }
+        });
+
+        connection.on("MessagesRead", (readByUserId) => {
+            document.querySelectorAll('.read-tick').forEach(el => el.classList.add('read'));
+        });
+
+        connection.start()
+            .then(() => connection.invoke("JoinConversation", OTHER_ID))
+            .catch(console.error);
+
+        // ── Send message ─────────────────────────────────────────────
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+            messageInput.value = '';
+            connection.invoke("SendMessage", OTHER_ID, text, BOOKING_ID).catch(console.error);
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+
+        // ── Render a message bubble ──────────────────────────────────
+        function appendMessage(senderId, senderName, text, timestamp, isOwn) {
+            const noMsg = document.querySelector('.no-messages');
+            if (noMsg) noMsg.remove();
+
+            const div = document.createElement('div');
+            div.className = `message-bubble ${isOwn ? 'own' : 'other'}`;
+            div.innerHTML = `
+                        ${!isOwn ? `<span class="bubble-avatar">${senderName.charAt(0)}</span>` : ''}
+                        <div class="bubble-content">
+                            <p>${escapeHtml(text)}</p>
+                            <span class="bubble-time">${timestamp}</span>
+                            ${isOwn ? '<span class="read-tick"><i class="fas fa-check-double"></i></span>' : ''}
+                        </div>`;
+            messagesArea.appendChild(div);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.appendChild(document.createTextNode(str));
+            return d.innerHTML;
+        }
+
+        // ── Scroll to bottom on load ─────────────────────────────────
+        window.addEventListener('DOMContentLoaded', () => {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            loadSidebarConversations();
+        });
+
+        // ── Sidebar conversations ────────────────────────────────────
+        function loadSidebarConversations() {
+            fetch('/Chat/Conversations')
+                .then(r => r.json())
+                .then(convos => {
+                    const container = document.getElementById('sidebarConversations');
+                    container.innerHTML = '';
+                    convos.forEach(c => {
+                        const a = document.createElement('a');
+                        a.href = `/Chat/Open/${c.otherUserId}`;
+                        a.className = `sidebar-convo ${c.otherUserId === OTHER_ID ? 'active' : ''} ${c.unreadCount > 0 ? 'has-unread' : ''}`;
+                        a.innerHTML = `
+                                    <span class="sidebar-avatar">${c.otherUserName.charAt(0)}</span>
+                                    <span class="sidebar-name">${c.otherUserName}</span>
+                                    ${c.unreadCount > 0 ? `<span class="sidebar-badge">${c.unreadCount}</span>` : ''}`;
+                        container.appendChild(a);
+                    });
+                });
+        }
+    </script>
+}

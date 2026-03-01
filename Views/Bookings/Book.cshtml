@@ -1,0 +1,429 @@
+﻿@model phpMVC.Models.CreateBookingViewModel
+@{
+    ViewData["Title"] = "Book Service | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>Book This Service</h1>
+        <p>Schedule your service and propose your price</p>
+    </div>
+</section>
+
+<!-- Booking Form -->
+<section class="booking-section">
+    <div class="container">
+        <div class="booking-container">
+            <!-- Service Details Card -->
+            <div class="service-details-card">
+                <h2><i class="fas fa-info-circle"></i> Service Details</h2>
+
+                @if (!string.IsNullOrEmpty(Model.ServiceImage))
+                {
+                    <img src="@Model.ServiceImage" alt="@Model.ServiceName" class="service-image" />
+                }
+
+                <h3>@Model.ServiceName</h3>
+                <p class="service-desc">@Model.ServiceDescription</p>
+
+                <div class="service-info">
+                    <div class="info-item">
+                        <i class="fas fa-user-tie"></i>
+                        <span><strong>Provider:</strong> @Model.ProviderName</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><strong>Location:</strong> @Model.Location</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span><strong>Listed Price:</strong> $@Model.ServicePrice.ToString("0.00")</span>
+                    </div>
+                </div>
+
+                <div class="pricing-note">
+                    <i class="fas fa-lightbulb"></i>
+                    <small>The listed price is a guideline. You can propose your own price below, and the provider will review it.</small>
+                </div>
+            </div>
+
+            <!-- Booking Form Card -->
+            <div class="booking-form-card">
+                <h2><i class="fas fa-calendar-check"></i> Book Your Appointment</h2>
+                <p>Fill in the details below to request this service</p>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <form asp-action="Book" method="post" id="bookingForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ServiceId" />
+
+                    <!-- Booking Date -->
+                    <div class="form-group">
+                        <label asp-for="BookingDate">
+                            <i class="fas fa-calendar"></i> Select Date
+                        </label>
+                        <input asp-for="BookingDate"
+                               type="date"
+                               class="form-control date-input"
+                               min="@ViewBag.MinDate"
+                               required />
+                        <span asp-validation-for="BookingDate" class="text-danger"></span>
+                        <small class="form-text">Please select a date (minimum: tomorrow)</small>
+                    </div>
+
+                    <!-- Proposed Price -->
+                    <div class="form-group">
+                        <label asp-for="ProposedPrice">
+                            <i class="fas fa-dollar-sign"></i> Your Proposed Price
+                        </label>
+                        <div class="price-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input asp-for="ProposedPrice"
+                                   type="number"
+                                   class="form-control price-input"
+                                   step="0.01"
+                                   min="0.01"
+                                   placeholder="0.00"
+                                   value="@Model.ServicePrice.ToString("0.00")"
+                                   required
+                                   oninput="updateSummaryPrice()" />
+                        </div>
+                        <span asp-validation-for="ProposedPrice" class="text-danger"></span>
+                        <div class="price-help">
+                            <small>
+                                <i class="fas fa-info-circle"></i>
+                                Listed price: $@Model.ServicePrice.ToString("0.00") - You can propose a different amount
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Customer Notes -->
+                    <div class="form-group">
+                        <label asp-for="CustomerNotes">
+                            <i class="fas fa-clipboard"></i> Describe What You Need
+                        </label>
+                        <textarea asp-for="CustomerNotes"
+                                  class="form-control"
+                                  rows="6"
+                                  placeholder="Please describe the work you need done, any specific requirements, preferred time, etc."
+                                  maxlength="1000"
+                                  required></textarea>
+                        <span asp-validation-for="CustomerNotes" class="text-danger"></span>
+                        <div class="char-count">
+                            <span id="charCount">0</span> / 1000 characters
+                        </div>
+                    </div>
+
+                    <!-- Booking Summary -->
+                    <div class="booking-summary">
+                        <h3>Booking Summary</h3>
+                        <div class="summary-row">
+                            <span>Service:</span>
+                            <strong>@Model.ServiceName</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Provider:</span>
+                            <strong>@Model.ProviderName</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Listed Price:</span>
+                            <span class="original-price">$@Model.ServicePrice.ToString("0.00")</span>
+                        </div>
+                        <div class="summary-row highlight-row">
+                            <span>Your Proposed Price:</span>
+                            <strong class="price" id="summaryPrice">$@Model.ServicePrice.ToString("0.00")</strong>
+                        </div>
+                        <div class="summary-note">
+                            <i class="fas fa-info-circle"></i>
+                            <small>The provider will review your proposed price and contact you to confirm details and finalize the amount.</small>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                            <i class="fas fa-check-circle"></i> Submit Booking Request
+                        </button>
+                        <a asp-controller="Services" asp-action="Index" class="btn btn-link">
+                            <i class="fas fa-arrow-left"></i> Back to Services
+                        </a>
+                    </div>
+
+                    <!-- Terms Note -->
+                    <div class="terms-note">
+                        <p>
+                            <i class="fas fa-shield-alt"></i>
+                            By submitting this request, you agree to our Terms of Service.
+                            Your booking is not confirmed until the provider accepts your request and proposed price.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Character count for notes
+        function updateCharCount() {
+            const textarea = document.getElementById('CustomerNotes');
+            const charCount = document.getElementById('charCount');
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+            }
+        }
+
+        // Update summary price when user types
+        function updateSummaryPrice() {
+            const priceInput = document.getElementById('ProposedPrice');
+            const summaryPrice = document.getElementById('summaryPrice');
+
+            if (priceInput && summaryPrice) {
+                const value = parseFloat(priceInput.value) || 0;
+                summaryPrice.textContent = '$' + value.toFixed(2);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Character count
+            const textarea = document.getElementById('CustomerNotes');
+            if (textarea) {
+                textarea.addEventListener('input', updateCharCount);
+                updateCharCount();
+            }
+
+            // Set minimum date client-side as well
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                const today = new Date();
+                today.setDate(today.getDate() + 1); // Tomorrow
+                const minDate = today.toISOString().split('T')[0];
+                dateInput.setAttribute('min', minDate);
+                if (!dateInput.value) {
+                    dateInput.value = minDate;
+                }
+            }
+
+            // Sync summary price on load to match the pre-filled input value
+            updateSummaryPrice();
+
+            // Form submit: show spinner, disable button — DO NOT call preventDefault
+            const form = document.getElementById('bookingForm');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                        submitBtn.disabled = true;
+                    }
+                });
+            }
+        });
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}
+
+@* @model phpMVC.Models.CreateBookingViewModel
+@{
+    ViewData["Title"] = "Book Service | WorkConnect";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1>Book This Service</h1>
+        <p>Schedule your service and get professional help</p>
+    </div>
+</section>
+
+<!-- Booking Form -->
+<section class="booking-section">
+    <div class="container">
+        <div class="booking-container">
+
+            <!-- ── Service Details Card ─────────────────────────────────── -->
+            <div class="service-details-card">
+                <h2><i class="fas fa-info-circle"></i> Service Details</h2>
+
+                @if (!string.IsNullOrEmpty(Model.ServiceImage))
+                {
+                    <img src="@Model.ServiceImage" alt="@Model.ServiceName" class="service-image" />
+                }
+
+                <h3>@Model.ServiceName</h3>
+                <p class="service-desc">@Model.ServiceDescription</p>
+
+                <div class="service-info">
+                    <div class="info-item">
+                        <i class="fas fa-user-tie"></i>
+                        <span><strong>Provider:</strong> @Model.ProviderName</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><strong>Location:</strong> @Model.Location</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span><strong>Price:</strong> $@Model.ServicePrice.ToString("0.00")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Booking Form Card ────────────────────────────────────── -->
+            <div class="booking-form-card">
+                <h2><i class="fas fa-calendar-check"></i> Book Your Appointment</h2>
+                <p>Fill in the details below to request this service</p>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <form asp-action="Book" method="post" id="bookingForm">
+                    @Html.AntiForgeryToken()
+
+
+
+                    <input type="hidden" asp-for="ServiceId" />
+                    <input type="hidden" asp-for="ServiceName" />
+                    <input type="hidden" asp-for="ServiceDescription" />
+                    <input type="hidden" asp-for="ServicePrice" />
+                    <input type="hidden" asp-for="ProviderName" />
+                    <input type="hidden" asp-for="Location" />
+                    <input type="hidden" asp-for="ServiceImage" />
+
+                    <!-- Booking Date -->
+                    <div class="form-group">
+                        <label asp-for="BookingDate">
+                            <i class="fas fa-calendar"></i> Select Date
+                        </label>
+                        <input asp-for="BookingDate"
+                               type="date"
+                               class="form-control date-input"
+                               min="@ViewBag.MinDate"
+                               required />
+                        <small class="form-text">Please select a date (minimum: tomorrow)</small>
+                    </div>
+
+                    <!-- Customer Notes -->
+                    <div class="form-group">
+                        <label asp-for="CustomerNotes">
+                            <i class="fas fa-clipboard"></i> Describe What You Need
+                        </label>
+                        <textarea asp-for="CustomerNotes"
+                                  class="form-control"
+                                  rows="6"
+                                  placeholder="Please describe the work you need done, any specific requirements, preferred time, etc."
+                                  maxlength="1000"
+                                  required></textarea>
+                        <div class="char-count">
+                            <span id="charCount">0</span> / 1000 characters
+                        </div>
+                    </div>
+
+                    <!-- Booking Summary -->
+                    <div class="booking-summary">
+                        <h3>Booking Summary</h3>
+                        <div class="summary-row">
+                            <span>Service:</span>
+                            <strong>@Model.ServiceName</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Provider:</span>
+                            <strong>@Model.ProviderName</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Estimated Price:</span>
+                            <strong class="price">$@Model.ServicePrice.ToString("0.00")</strong>
+                        </div>
+                        <div class="summary-note">
+                            <i class="fas fa-info-circle"></i>
+                            <small>The provider will review your request and contact you to confirm details and final pricing.</small>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                            <i class="fas fa-check-circle"></i> Submit Booking Request
+                        </button>
+                        <a asp-controller="Services" asp-action="Index" class="btn btn-link">
+                            <i class="fas fa-arrow-left"></i> Back to Services
+                        </a>
+                    </div>
+
+                    <!-- Terms Note -->
+                    <div class="terms-note">
+                        <p>
+                            <i class="fas fa-shield-alt"></i>
+                            By submitting this request, you agree to our Terms of Service.
+                            Your booking is not confirmed until the provider accepts it.
+                        </p>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Character count
+        const textarea = document.getElementById('CustomerNotes');
+        const charCount = document.getElementById('charCount');
+
+        if (textarea && charCount) {
+            textarea.addEventListener('input', () => {
+                charCount.textContent = textarea.value.length;
+            });
+            // Show count for any pre-filled value
+            charCount.textContent = textarea.value.length;
+        }
+
+        // Enforce minimum date client-side as well
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const minDate = tomorrow.toISOString().split('T')[0];
+                dateInput.setAttribute('min', minDate);
+
+                // If no date chosen yet, default to tomorrow
+                if (!dateInput.value) {
+                    dateInput.value = minDate;
+                }
+            }
+        });
+
+        // Prevent double-submit
+        document.getElementById('bookingForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            btn.disabled = true;
+        });
+    </script>
+}
+ *@
