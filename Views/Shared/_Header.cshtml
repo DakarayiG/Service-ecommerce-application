@@ -238,8 +238,10 @@
                             } else {
                                 users.forEach(u => {
                                     const a = document.createElement('a');
-                                    a.href = `/Services/Index?ServiceType=${encodeURIComponent(u.firstName + ' ' + u.lastName)}`;
-                                    a.className = 'header-search-item';
+@*                                     a.href = `/Services/Index?ServiceType=${encodeURIComponent(u.firstName + ' ' + u.lastName)}`;
+ *@
+                                        a.href = `/Services/Index?ProviderId=${u.id}`;
+ a.className = 'header-search-item';
                                     a.innerHTML = `
                                         <span class="hs-avatar">${u.firstName.charAt(0)}</span>
                                         <span class="hs-name">${u.firstName} ${u.lastName}</span>

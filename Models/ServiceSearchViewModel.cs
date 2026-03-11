@@ -14,6 +14,7 @@ namespace phpMVC.Models
         public int PageSize { get; set; } = 9;
         public int TotalServices { get; set; }
         public int TotalPages { get; set; }
+        public int? ProviderId { get; set; }
         public List<Service> Services { get; set; } = new List<Service>();
     }
 }

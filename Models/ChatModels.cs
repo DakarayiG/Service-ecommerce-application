@@ -37,6 +37,7 @@ namespace phpMVC.Models
         public string OtherUserType { get; set; }
         public List<ChatMessage> Messages { get; set; } = new();
         public int? BookingId { get; set; }
+
     }
 
     public class AdminConversationSummary

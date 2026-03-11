@@ -130,6 +130,7 @@
                             </div>
                         </div>
 
+
                         <!-- Order Actions -->
                         <div class="order-actions">
                             <button type="button"
@@ -142,6 +143,11 @@
                                     onclick="rejectBooking(@booking.Id)">
                                 <i class="fas fa-times"></i> Reject
                             </button>
+
+                            <a href="/Chat/Open/@booking.CustomerId?bookingId=@booking.Id"
+                               class="action-link negotiate-btn">
+                                <i class="fas fa-comments"></i> Message Customer
+                            </a>
                         </div>
                         <div class="acceptance-note">
                             <i class="fas fa-info-circle"></i>

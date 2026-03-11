@@ -120,7 +120,11 @@ namespace phpMVC.Controllers
                         parameters.Add(new MySqlParameter("@minPrice", minPrice));
                         parameters.Add(new MySqlParameter("@maxPrice", maxPrice));
                     }
-
+                    if (model.ProviderId.HasValue && model.ProviderId.Value > 0)
+                    {
+                        whereClauses.Add("s.ProviderId = @providerId");
+                        parameters.Add(new MySqlParameter("@providerId", model.ProviderId.Value));
+                    }
                     // Get sort order
                     string sortOrder = GetSortOrder(model.SortBy);
 
@@ -387,24 +391,31 @@ namespace phpMVC.Controllers
 
             imagePath = imagePath.Trim();
 
-            // Absolute URL (external)
+            // Already an absolute external URL — use as-is
             if (imagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 imagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 return imagePath;
             }
 
-            // Remove leading ~ or / if present
-            imagePath = imagePath.TrimStart('~', '/');
+            // Strip any leading ~, / or combination
+            imagePath = imagePath.TrimStart('~').TrimStart('/');
 
-            // If DB already contains UploadedImages/
+            // If path already starts with UploadedImages/, just prepend /
             if (imagePath.StartsWith("UploadedImages/", StringComparison.OrdinalIgnoreCase))
             {
-                return "~/" + imagePath; // Return relative path without Url.Content
+                return "/" + imagePath;
             }
 
-            // Otherwise assume it's a filename only
-            return "~/UploadedImages/" + imagePath;
+            // If it looks like a full path with subfolders but no UploadedImages prefix
+            // e.g. "Services/filename.jpg"
+            if (imagePath.Contains("/"))
+            {
+                return "/UploadedImages/" + imagePath;
+            }
+
+            // Plain filename only — e.g. "abc123.jpg"
+            return "/UploadedImages/" + imagePath;
         }
         //private string NormalizeImageUrl(string imagePath)
         //{
