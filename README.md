@@ -95,19 +95,19 @@ A full-stack web application connecting service providers with customers, featur
 ## 📸 Video walk through
 
 ### **Provider flow of events 1**
-![Provider flow of events 1](https://github.com/user-attachments/assets/ce347ab7-f014-4d03-b59b-848cb890efa0)
+(https://github.com/user-attachments/assets/ce347ab7-f014-4d03-b59b-848cb890efa0)
 *Logged in provider can post a job. Open the chat tab and chat with a potential client. View their orders and choose to accept, reject or negotiate the deal. Provider can see the different stages the service is in. View dashoard* 
 
 ### **Provider flow of events 2**
-![Provider flow of events 2](https://github.com/user-attachments/assets/16b6cc17-78ba-4b2a-b7ab-13d6a514ca18)
+(https://github.com/user-attachments/assets/16b6cc17-78ba-4b2a-b7ab-13d6a514ca18)
 *Provider can view their published services and choose to deactivate a service ro remove it from customers view. Can edit service information. Provders and Customers can edit their profile information.* 
 
 ### **Cutomer flow of events 1**
-![Cutomer flow of events 1](https://github.com/user-attachments/assets/d9531458-9a70-4985-a1b9-a12ee2733e1d)
+(https://github.com/user-attachments/assets/d9531458-9a70-4985-a1b9-a12ee2733e1d)
 *Logged in customer browses through services, searches for a specific service, books service*
 
 ### **Cutomer flow of events 2**
-![Cutomer flow of events 2](https://github.com/user-attachments/assets/6214a6aa-82a3-4093-9a21-58c9df66d7bb)
+(https://github.com/user-attachments/assets/6214a6aa-82a3-4093-9a21-58c9df66d7bb)
 *Customer looks through their bookings, searches for a specific provder and opens the chat feature, customer checks their bookings to see the progress of their order request in the top left corner of the card (Status changes from pending to Accepted to Complete.), once complete the customer gets a notification to rate the service.*
 
 ---
