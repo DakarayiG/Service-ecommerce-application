@@ -22,7 +22,7 @@ A full-stack web application connecting service providers with customers, featur
 - [Performance Optimizations](#performance-optimizations)
 - [Skills Demonstrated](#skills-demonstrated)
 - [Future Enhancements](#future-enhancements)
-- [License](#license)
+
 
 ---
 
